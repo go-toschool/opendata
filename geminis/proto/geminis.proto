@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package geminis;
+option go_package = "github.com/Finciero/opendata/geminis/geminis";
+
+service Geminis {
+  rpc Card (Request) returns (Response);
+}
+
+message Card {
+  string email = 1;
+  string password = 2;
+}
+
+message Request {
+  string id = 1;
+}
+
+message Response {
+  string reference_id = 1;
+  string reference_user_id = 2;
+  string reference_email = 3;
+}
+
+message Balance {
+    string email = 1;
+    int32 balance = 2;
+}
+
+message Transactions {
+    string user_id = 1;
+    repeated Transaction transactions = 1;
+}
+
+message Transaction {
+    string id = 1;
+    int32 amount = 2;
+    string description = 3;
+    string date = 4;
+}
