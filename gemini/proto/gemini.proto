@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-package geminis;
-option go_package = "github.com/Finciero/opendata/geminis/geminis";
+package gemini;
+option go_package = "github.com/Finciero/opendata/gemini/gemini";
 
-service Geminis {
+service Service {
   rpc Card (Request) returns (Response);
 }
 

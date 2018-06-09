@@ -1,8 +1,8 @@
-# Geminis Makefile
-# Geminis pod
-PROGRAM="Geminis Service"
+# Gemini Makefile
+# Gemini pod
+PROGRAM="Gemini Service"
 
-SVC=geminis
+SVC=gemini
 PROTO_DIR=proto
 PROTO_SRC=$(PROTO_DIR)/*.proto
 GO_PTYPES=$(SVC)/*.pb.go
