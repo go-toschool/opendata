@@ -1,7 +1,7 @@
 # Gemini
 
 <img src="gemini.png" alt="Gemini" align="right" width="160" />
-This Service implements to libraries, one to make syncronous request/response (Saga) and other to make asyncronous request/response (Kanon).
+This Service implements two libraries, one to make syncronous request/response (Saga) and other to make asyncronous request/response (Kanon).
 
 Both connect our provider framework `Brickwall` in order to retrieve balance and transactions of an specific user.
 
