@@ -1,0 +1,31 @@
+version: '2'
+services:
+  postgres:
+    restart: always
+    image: postgres:alpine
+    volumes:
+      - dbdatavol:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: pguser
+      POSTGRES_DB: opendata
+  geminis:
+    restart: always
+    image: gcr.io/finciero-gold/gemini:v0.0.1
+    container_name: gemini
+    ports:
+      - "4000:4000"
+  saga:
+    image: gcr.io/finciero-gold/saga:v0.0.1
+    container_name: saga
+  kanon:
+    image: gcr.io/finciero-gold/kanon:v0.0.1
+    container_name: kanon
+  aiolos:
+    image: gcr.io/finciero-gold/aiolos:v0.0.1
+    container_name: aiolos
+volumes:
+  dbdatavol:
+    driver: local

@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package kanon;
+option go_package = "github.com/Finciero/opendata/gemini/kanon";
+
+service Service {
+  rpc GetTransactions (Request) returns (Response);
+}
+
+message Request {
+  string reference_id = 1;
+}
+
+message Response {
+  int32 status_code = 1;
+  string message = 2;
+}
+
+message Transactions {
+  string user_id = 1;
+  string email = 2;
+  repeated Transaction transactions = 3;
+}
+
+message Transaction {
+  string id = 1;
+  int32 amount = 2;
+  string description = 3;
+  string date = 4;
+}

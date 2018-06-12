@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package saga;
+option go_package = "github.com/Finciero/opendata/gemini/saga";
+
+service Service {
+  rpc GetBalance (Request) returns (Response);
+}
+
+message Request {
+  string reference_id = 1;
+}
+
+message Response {
+  int32 status_code = 1;
+  Balance balance = 2;
+}
+
+message Balance {
+  string user_id = 1;
+  string email = 2;
+  int32 balance = 3;
+}

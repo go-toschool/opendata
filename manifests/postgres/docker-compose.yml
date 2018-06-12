@@ -1,0 +1,16 @@
+version: '2'
+services:
+  postgres:
+    restart: always
+    image: postgres:alpine
+    volumes:
+      - dbdatavol:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: pguser
+      POSTGRES_DB: opendata
+volumes:
+  dbdatavol:
+    driver: local
