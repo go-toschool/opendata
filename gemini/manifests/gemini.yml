@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gemini
+  labels:
+    app: gemini
+    tier: backend
+spec:
+  selector:
+    app: gemini
+    tier: backend
+  ports:
+  - name: frontend
+    port: 80
+    protocol: TCP
+    targetPort: http
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: gemini
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: gemini
+        tier: backend
+        release: stable
+    spec:
+      containers:
+      - name: gemini
+        image: gcr.io/finciero-gold/gemini:v0.0.1
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 4000
+          name: http
+        command: ["gemini"]
+      - name: kanon
+        image: gcr.io/finciero-gold/kanon:v0.0.1
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 4001
+          name: kanon-grpc
+        command: ["kanon"]
+      - name: saga
+        image: gcr.io/finciero-gold/saga:v0.0.1
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 4002
+          name: saga-grpc
+        command: ["saga"]

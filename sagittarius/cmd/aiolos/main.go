@@ -34,9 +34,11 @@ func (ss *SaggitariusService) Delete(ctx context.Context, c *aiolos.Callback) (*
 // Dispatch ...
 func (ss *SaggitariusService) Dispatch(ctx context.Context, r *aiolos.Request) (*aiolos.Response, error) {
 	// Get callback url
-
+	fmt.Println(r.Id)
 	// dispatch data
-	return &aiolos.Response{}, nil
+	return &aiolos.Response{
+		Message: "hello ",
+	}, nil
 }
 
 func main() {
@@ -49,6 +51,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	fmt.Println("hola mundo")
+
+	log.Println("starting sagittarius service...")
+	log.Println("listening on: 3000")
 	srv.Serve(lis)
 }

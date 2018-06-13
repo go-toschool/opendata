@@ -1,31 +1,60 @@
 version: '2'
+networks:
+    sanctuary:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 10.6.0.0/24
+                  gateway: 10.6.0.1
+        # ipam:
+        #     driver: default
+        #     config:
+        #         - subnet: 10.7.0.0/16
+        #           gateway: 10.7.0.1
+
+
 services:
-  postgres:
-    restart: always
-    image: postgres:alpine
-    volumes:
-      - dbdatavol:/var/lib/postgresql/data
-    ports:
-      - "5433:5432"
-    environment:
-      POSTGRES_USER: pguser
-      POSTGRES_PASSWORD: pguser
-      POSTGRES_DB: opendata
-  geminis:
-    restart: always
-    image: gcr.io/finciero-gold/gemini:v0.0.1
-    container_name: gemini
-    ports:
-      - "4000:4000"
-  saga:
-    image: gcr.io/finciero-gold/saga:v0.0.1
-    container_name: saga
-  kanon:
-    image: gcr.io/finciero-gold/kanon:v0.0.1
-    container_name: kanon
-  aiolos:
-    image: gcr.io/finciero-gold/aiolos:v0.0.1
-    container_name: aiolos
+    postgres:
+        restart: always
+        image: postgres:alpine
+        volumes:
+            - dbdatavol:/var/lib/postgresql/data
+        ports:
+            - "5433:5432"
+        environment:
+            POSTGRES_USER: pguser
+            POSTGRES_PASSWORD: pguser
+            POSTGRES_DB: opendata
+        networks:
+            - sanctuary
+    gemini:
+        restart: always
+        image: gcr.io/finciero-gold/gemini:v0.0.1
+        container_name: gemini
+        networks:
+            - sanctuary
+        ports:
+            - "4000:4000"
+    saga:
+        restart: always
+        image: gcr.io/finciero-gold/saga:v0.0.1
+        container_name: saga
+        networks:
+            - sanctuary
+    kanon:
+        restart: always
+        image: gcr.io/finciero-gold/kanon:v0.0.1
+        container_name: kanon
+        networks:
+            - sanctuary
+    aiolos:
+        restart: always
+        image: gcr.io/finciero-gold/aiolos:v0.0.1
+        container_name: aiolos
+        networks:
+            - sanctuary
+
 volumes:
-  dbdatavol:
-    driver: local
+    dbdatavol:
+        driver: local

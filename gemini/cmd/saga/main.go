@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"log"
 	"net"
 
@@ -21,15 +19,15 @@ type SagaService struct {
 
 // GetBalance ...
 func (ss *SagaService) GetBalance(ctx context.Context, r *saga.Request) (*saga.Response, error) {
-	resp, err := ss.BrickwallClient.Get(fmt.Sprintf("/cards/%s/balance", r.ReferenceId))
-	if err != nil {
-		return nil, err
-	}
+	// resp, err := ss.BrickwallClient.Get(fmt.Sprintf("/cards/%s/balance", r.ReferenceId))
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	var balance *saga.Balance
-	if err := json.Unmarshal(resp, &balance); err != nil {
-		return nil, err
-	}
+	// var balance *saga.Balance
+	// if err := json.Unmarshal(resp, &balance); err != nil {
+	// 	return nil, err
+	// }
 
 	return &saga.Response{
 		StatusCode: 200,
@@ -58,7 +56,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	fmt.Println("starting gemini service...")
-	fmt.Println("listening on: 4002")
+	log.Println("starting saga service...")
+	log.Println("listening on: 4002")
 	srv.Serve(lis)
 }

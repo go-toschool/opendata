@@ -61,19 +61,19 @@ buildsaga:
 	@echo "[build] saga service..."
 	@cd cmd/$(SVC3) && GOOS=linux go build -o $(BIN3) -ldflags=$(LDFLAGS)
 
-dockergemini:
+dockergemini: buildgemini
 	@echo "[docker] Building image..."
-	@docker build -t $(REGISTRY_URL)/$(SVC):$(VERSION) -f DockerfileGemini .
+	@docker build -t $(REGISTRY_URL)/$(SVC):$(VERSION) -f manifests/DockerfileGemini .
 
-dockerkanon:
+dockerkanon: buildkanon
 	@echo "[docker] Building image..."
-	@docker build -t $(REGISTRY_URL)/$(SVC2):$(VERSION) -f DockerfileKanon .
+	@docker build -t $(REGISTRY_URL)/$(SVC2):$(VERSION) -f manifests/DockerfileKanon .
 
-dockersaga:
+dockersaga: buildsaga
 	@echo "[docker] Building image..."
-	@docker build -t $(REGISTRY_URL)/$(SVC3):$(VERSION) -f DockerfileSaga .
+	@docker build -t $(REGISTRY_URL)/$(SVC3):$(VERSION) -f manifests/DockerfileSaga .
 
-docker d: build dockergemini dockerkanon dockersaga
+docker d: dockergemini dockerkanon dockersaga
 	@echo "[docker] Building image..."
 
 

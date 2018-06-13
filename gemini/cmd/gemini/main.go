@@ -64,7 +64,8 @@ func main() {
 	})
 
 	// Dial with Kanon
-	conn, err := grpc.Dial(":4001", grpc.WithInsecure())
+	kanonIP := "kanon:4001"
+	conn, err := grpc.Dial(kanonIP, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}
@@ -72,11 +73,13 @@ func main() {
 	ks := kanon.NewServiceClient(conn)
 
 	// Dial with Saga
-	conn, err = grpc.Dial(":4002", grpc.WithInsecure())
+	sagaIP := "saga:4002"
+	conn, err = grpc.Dial(sagaIP, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}
 	defer conn.Close()
+
 	ss := saga.NewServiceClient(conn)
 
 	gs := &GeminiService{
@@ -91,7 +94,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	fmt.Println("starting gemini service...")
-	fmt.Println("listening on: 4000")
+	log.Println("starting gemini service...")
+	log.Println("listening on: 4000")
 	srv.Serve(lis)
 }

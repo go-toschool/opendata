@@ -28,7 +28,7 @@ func (ks *KanonService) GetTransactions(ctx context.Context, r *kanon.Request) (
 	}
 
 	//var trxs kanon.Transactions
-	fmt.Println(string(resp))
+	log.Println(string(resp))
 
 	rr, err := ks.SagittariusClient.Dispatch(ctx, &aiolos.Request{
 		Id: r.ReferenceId,
@@ -51,7 +51,7 @@ func main() {
 	})
 
 	// Dial with saggitarius
-	conn, err := grpc.Dial(":3000", grpc.WithInsecure())
+	conn, err := grpc.Dial("aiolos:3000", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}
@@ -70,7 +70,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	fmt.Println("starting kanon service...")
-	fmt.Println("listening on: 4001")
+	log.Println("starting kanon service...")
+	log.Println("listening on: 4001")
 	srv.Serve(lis)
 }
