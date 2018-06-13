@@ -12,11 +12,13 @@ Saga and Kannon, connect with our provider framework `Brickwall` in order to ret
 # Kanon
 
 <img src="kanon.png" alt="Kanon" align="left" width="160" />
-Kanon send to Saggitarius user movements to post on the register callback. For more details see [Saggitarius](https://github.com/Finciero/opendata/saggitarius). This action is asyncronous due to the long time that takes retrieving transactions.
+Kanon send to Saggitarius, the card movements of a user to post on the register callback. For more details see [Saggitarius](https://github.com/Finciero/opendata/saggitarius). This action is asyncronous due to the long time that takes retrieving transactions.
 
 ---
 
 # Saga
 
 <img src="saga.png" alt="Saga" align="right" width="160" />
-Saga respond user balance of his corresponding cards over the same channel as the request came. This action is syncronous.
+Saga respond with the running balance of a users card over the same channel as the request came. This action is syncronous.
+
+---
