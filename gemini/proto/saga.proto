@@ -8,7 +8,8 @@ service Service {
 }
 
 message Request {
-  string reference_id = 1;
+  string account_id = 1;
+  string reference_id = 2;
 }
 
 message Response {

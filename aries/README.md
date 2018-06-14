@@ -8,4 +8,6 @@ Esta validación se hace por medio de un request HTTP hacia nuestro servidor pri
 
 Además, validamos el token de acceso de dicho partner consultando al Servicio de [Capricornius](https://github.com/Finciero/opendata/capricornius).
 
-Una vez validadas las llaves de acceso, se realiza un request hacia el Servicio de [Geminis](https://github.com/Finciero/opendata/gamini) con los datos del usuario autenticado, este servicio realiza las respectivas, consultas de saldo y transacciones de dicho usuario.
+Una vez validadas las llaves de acceso, se realiza un request hacia el Servicio de [Geminis](https://github.com/Finciero/opendata/gamini) con los datos del usuario autenticado, este último servicio realiza las respectivas consultas de saldo y transacciones de dicho usuario.
+
+Si las credenciales son correctas, Mu espera la respuesta de [Geminis](https://github.com/Finciero/opendata/gamini) que contiene el balance de las tarjetas de dicho usuario.

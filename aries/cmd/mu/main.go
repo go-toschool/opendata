@@ -26,43 +26,6 @@ var (
 	sigiriyaToken = flag.String("sigiriya-token", "", "Token to access sigiriya service.")
 )
 
-// MuService ...
-type MuService struct {
-	SigiriyaClient *sigiriya.Client
-	GeminiClient   gemini.ServiceClient
-}
-
-// Auth ...
-func (ms *MuService) Auth(ctx context.Context, r *mu.Request) (*mu.Response, error) {
-	resp, err := ms.SigiriyaClient.Get(fmt.Sprintf("/session?token=%s", r.UserToken))
-	if err != nil {
-		return nil, err
-	}
-
-	var response *gemini.Request
-	if err := json.Unmarshal(resp, response); err != nil {
-		return nil, err
-	}
-
-	response.ClientId = r.PartnerToken
-	rr, err := ms.GeminiClient.Card(ctx, response)
-	if err != nil {
-		return nil, err
-	}
-
-	if rr.StatusCode == 200 {
-		return &mu.Response{
-			StatusCode: rr.StatusCode,
-			Message:    "success",
-			Balance: &mu.Balance{
-				Balance: rr.Balance.Balance,
-			},
-		}, nil
-	}
-
-	return nil, errors.New("Invalid response")
-}
-
 func main() {
 	flag.Parse()
 	srv := grpc.NewServer()
@@ -96,4 +59,60 @@ func main() {
 	srv.Serve(lis)
 
 	fmt.Println("Service Mu de Aries")
+}
+
+// MuService ...
+type MuService struct {
+	SigiriyaClient *sigiriya.Client
+	GeminiClient   gemini.ServiceClient
+}
+
+type sigiriyaResponse struct {
+	ID              string `json:"id,omitempty"`
+	VanityNumber    string `json:"vanity_number,omitempty"`
+	ReferenceID     string `json:"reference_id,omitempty"`
+	ReferenceUserID string `json:"reference_user_id,omitempty"`
+	Authorization   bool   `json:"authorization,omitempty"`
+}
+
+// Auth ...
+func (ms *MuService) Auth(ctx context.Context, r *mu.Request) (*mu.Response, error) {
+	resp, err := ms.SigiriyaClient.Get(fmt.Sprintf("/session?token=%s", r.UserToken))
+	if err != nil {
+		return nil, err
+	}
+
+	var srr *sigiriyaResponse
+	if err := json.Unmarshal(resp, srr); err != nil {
+		return nil, err
+	}
+
+	if !srr.Authorization {
+		return nil, errors.New("unauthorized")
+	}
+
+	rr, err := ms.GeminiClient.Card(ctx, &gemini.Request{
+		ClientId:   r.PartnerToken,
+		UserId:     srr.ReferenceUserID,
+		RefereceId: srr.ReferenceID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if rr.StatusCode == 200 {
+		return &mu.Response{
+			StatusCode: rr.StatusCode,
+			Message:    "success",
+			Balance: &mu.Balance{
+				Balance: rr.Balance.Balance,
+			},
+			Account: &mu.Account{
+				Id:       "",
+				VanityId: "",
+			},
+		}, nil
+	}
+
+	return nil, errors.New("invalid response")
 }

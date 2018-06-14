@@ -8,7 +8,8 @@ service Service {
 }
 
 message Request {
-  string reference_id = 1;
+  string account_id = 1;
+  string reference_id = 2;
 }
 
 message Response {
@@ -17,8 +18,7 @@ message Response {
 }
 
 message Transactions {
-  string user_id = 1;
-  string email = 2;
+  Account account = 1;
   repeated Transaction transactions = 3;
 }
 
@@ -27,4 +27,9 @@ message Transaction {
   int32 amount = 2;
   string description = 3;
   string date = 4;
+}
+
+message Account {
+  string id = 1;
+  string vanity_id = 2;
 }

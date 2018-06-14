@@ -9,10 +9,12 @@ service Service {
 
 message Request {
   string email = 1;
-  string client_token = 2;
+  string Password = 2;
+  string client_token = 3;
 }
 
 message Response {
   int32 status_code = 1;
   string message = 2;
+  string token = 3;
 }

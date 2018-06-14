@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -14,7 +13,6 @@ import (
 	"github.com/Finciero/opendata/gemini/gemini"
 	"github.com/Finciero/opendata/gemini/kanon"
 	"github.com/Finciero/opendata/gemini/saga"
-	"github.com/Finciero/opendata/gemini/sigiriya"
 )
 
 var (
@@ -26,17 +24,11 @@ var (
 
 	sagaHost = flag.String("saga-host", "saga", "Service host (Overwriten if SAGA_SERVICE_HOST env var is set)")
 	sagaPort = flag.Int("saga-port", 4002, "Service port (Overwriten if SAGA_SERVICE_PORT env var is set)")
-
-	sigiriyaToken = flag.String("sigiriya-token", "", "Token to access sigiriya service.")
 )
 
 func main() {
 	flag.Parse()
 	srv := grpc.NewServer()
-
-	sigiriyaClient := sigiriya.NewClient(&sigiriya.Config{
-		Token: *sigiriyaToken,
-	})
 
 	// Dial with Kanon
 	kanonIP := fmt.Sprintf("%s:%d", *kanonHost, *kanonPort)
@@ -57,9 +49,8 @@ func main() {
 	ss := saga.NewServiceClient(conn)
 
 	gs := &GeminiService{
-		SigiriyaClient: sigiriyaClient,
-		KanonClient:    ks,
-		SagaClient:     ss,
+		KanonClient: ks,
+		SagaClient:  ss,
 	}
 
 	gemini.RegisterServiceServer(srv, gs)
@@ -75,29 +66,20 @@ func main() {
 
 // GeminiService implements gemini interface of gemini package
 type GeminiService struct {
-	SigiriyaClient *sigiriya.Client
-	KanonClient    kanon.ServiceClient
-	SagaClient     saga.ServiceClient
+	KanonClient kanon.ServiceClient
+	SagaClient  saga.ServiceClient
 }
 
 // Card ...
 func (ss *GeminiService) Card(ctx context.Context, r *gemini.Request) (*gemini.Response, error) {
-	resp, err := ss.SigiriyaClient.Get(fmt.Sprintf("/cards?user_id=%s", r.UserId))
-	if err != nil {
-		return nil, err
-	}
-
-	var acc *gemini.Account
-	if err := json.Unmarshal(resp, acc); err != nil {
-		return nil, err
-	}
-
 	go ss.KanonClient.GetTransactions(ctx, &kanon.Request{
-		ReferenceId: acc.ReferenceId,
+		ReferenceId: r.ReferenceId,
+		UserId:      r.UserId,
 	})
 
 	balance, err := ss.SagaClient.GetBalance(ctx, &saga.Request{
-		ReferenceId: acc.ReferenceId,
+		ReferenceId: r.ReferenceId,
+		UserId:      r.UserId,
 	})
 	if err != nil {
 		return nil, err

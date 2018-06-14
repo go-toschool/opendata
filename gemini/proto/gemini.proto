@@ -17,6 +17,7 @@ message Card {
 message Request {
   string client_id = 1;
   string user_id = 2;
+  string referece_id = 3;
 }
 
 message Response {

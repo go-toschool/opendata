@@ -16,8 +16,14 @@ message Response {
   int32 status_code = 1;
   string message = 2;
   Balance balance = 3;
+  Account account = 4;
 }
 
 message Balance {
   float balance = 1;
+}
+
+message Account {
+  string id = 1;
+  string vanity_id = 2;
 }
