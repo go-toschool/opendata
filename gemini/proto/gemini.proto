@@ -15,7 +15,8 @@ message Card {
 }
 
 message Request {
-  string email = 1;
+  string client_id = 1;
+  string user_id = 2;
 }
 
 message Response {
