@@ -9,7 +9,7 @@ import (
 	"log"
 	"net"
 
-	"github.com/Finciero/opendata/gemini/gemini"
+	"github.com/Finciero/opendata/gemini"
 
 	"github.com/Finciero/opendata/aries/mu"
 	"github.com/Finciero/opendata/aries/sigiriya"
@@ -31,13 +31,10 @@ func main() {
 	srv := grpc.NewServer()
 
 	// Dial with Gemini
-	geminiIP := fmt.Sprintf("%s:%d", *geminiHost, *geminiPort)
-	conn, err := grpc.Dial(geminiIP, grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("did not connect: %s", err)
-	}
-	defer conn.Close()
-	gs := gemini.NewServiceClient(conn)
+	gs := gemini.NewCastor(&gemini.Config{
+		Host: *geminiHost,
+		Port: *geminiPort,
+	})
 
 	sc := sigiriya.NewClient(&sigiriya.Config{
 		Token: *sigiriyaToken,

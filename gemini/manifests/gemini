@@ -4,11 +4,11 @@ RUN apk add --update ca-certificates
 
 MAINTAINER rodrigo <rf@finciero.com>
 
-FROM base AS gemini
+FROM base AS castor
 
-COPY bin/gemini /usr/bin/gemini
+COPY bin/castor /usr/bin/castor
 
 EXPOSE 4000
 
-ENTRYPOINT ["gemini"]
+ENTRYPOINT ["castor"]
 

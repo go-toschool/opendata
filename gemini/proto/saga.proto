@@ -10,6 +10,7 @@ service Service {
 message Request {
   string account_id = 1;
   string reference_id = 2;
+  string user_id = 3;
 }
 
 message Response {

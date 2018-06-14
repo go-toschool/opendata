@@ -8,6 +8,7 @@ import (
 
 	"golang.org/x/net/context"
 
+	"github.com/Finciero/opendata/sagittarius"
 	"github.com/Finciero/opendata/sagittarius/aiolos"
 	"google.golang.org/grpc"
 
@@ -34,14 +35,10 @@ func main() {
 	})
 
 	// Dial with saggitarius
-	aiolosIP := fmt.Sprintf("%s:%d", *aiolosHost, *aiolosPort)
-	conn, err := grpc.Dial(aiolosIP, grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("did not connect: %s", err)
-	}
-	defer conn.Close()
-
-	sc := aiolos.NewSaggitariusClient(conn)
+	sc := sagittarius.NewAiolos(&sagittarius.Config{
+		Host: *aiolosHost,
+		Port: *aiolosPort,
+	})
 
 	ks := &KanonService{
 		BrickwallClient:   brickwallClient,
@@ -62,7 +59,7 @@ func main() {
 // KanonService implements kanon interface of gemini package
 type KanonService struct {
 	BrickwallClient   *brickwall.Client
-	SagittariusClient aiolos.SaggitariusClient
+	SagittariusClient aiolos.ServiceClient
 }
 
 // GetTransactions ...

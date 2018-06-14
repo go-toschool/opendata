@@ -12,6 +12,22 @@ import (
 	"github.com/Finciero/opendata/sagittarius/aiolos"
 )
 
+func main() {
+	srv := grpc.NewServer()
+	ss := &SaggitariusService{}
+
+	aiolos.RegisterServiceServer(srv, ss)
+
+	lis, err := net.Listen("tcp", ":3000")
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	log.Println("starting sagittarius service...")
+	log.Println("listening on: 3000")
+	srv.Serve(lis)
+}
+
 // SaggitariusService implements saggitarios interface of aiolos package
 type SaggitariusService struct {
 }
@@ -39,20 +55,4 @@ func (ss *SaggitariusService) Dispatch(ctx context.Context, r *aiolos.Request) (
 	return &aiolos.Response{
 		Message: "hello ",
 	}, nil
-}
-
-func main() {
-	srv := grpc.NewServer()
-	ss := &SaggitariusService{}
-
-	aiolos.RegisterSaggitariusServer(srv, ss)
-
-	lis, err := net.Listen("tcp", ":3000")
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-
-	log.Println("starting sagittarius service...")
-	log.Println("listening on: 3000")
-	srv.Serve(lis)
 }

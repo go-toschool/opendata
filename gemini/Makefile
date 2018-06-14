@@ -4,7 +4,7 @@ PROGRAM="Gemini Service"
 
 VERSION=v0.0.1
 
-SVC=gemini
+SVC=castor
 SVC2=kanon
 SVC3=saga
 
@@ -34,7 +34,7 @@ clean c:
 	@rm -f $(GO_PTYPES3)
 	@rm -f $(BIN)
 
-protogemini:
+protocastor:
 	@echo "[proto] Generating golang proto types..."
 	protoc --proto_path=$(GOPATH)/src:$(PROTO_DIR)/ --go_out=plugins=grpc:$(GOPATH)/src $(PROTO_SRC_SVC)
 
@@ -46,11 +46,11 @@ protosaga:
 	@echo "[proto] Generating golang proto types..."
 	protoc --proto_path=$(GOPATH)/src:$(PROTO_DIR)/ --go_out=plugins=grpc:$(GOPATH)/src $(PROTO_SRC_SVC3)
 
-proto p: clean protogemini protokanon protosaga
+proto p: clean protocastor protokanon protosaga
 	@echo "[proto] Generating golang proto types..."
 
-buildgemini:
-	@echo "[build] gemini service..."
+buildcastor:
+	@echo "[build] castor service..."
 	@cd cmd/$(SVC) && GOOS=linux go build -o $(BIN) -ldflags=$(LDFLAGS)
 
 buildkanon:
@@ -61,7 +61,7 @@ buildsaga:
 	@echo "[build] saga service..."
 	@cd cmd/$(SVC3) && GOOS=linux go build -o $(BIN3) -ldflags=$(LDFLAGS)
 
-dockergemini: buildgemini
+dockercastor: buildcastor
 	@echo "[docker] Building image..."
 	@docker build -t $(REGISTRY_URL)/$(SVC):$(VERSION) -f manifests/$(SVC) .
 
@@ -73,8 +73,8 @@ dockersaga: buildsaga
 	@echo "[docker] Building image..."
 	@docker build -t $(REGISTRY_URL)/$(SVC3):$(VERSION) -f manifests/$(SVC3) .
 
-docker d: dockergemini dockerkanon dockersaga
+docker d: dockercastor dockerkanon dockersaga
 	@echo "[docker] Building image..."
 
 
-build b: clean proto buildgemini buildkanon buildsaga
+build b: clean proto buildcastor buildkanon buildsaga

@@ -3,7 +3,7 @@ syntax = "proto3";
 package aiolos;
 option go_package = "github.com/Finciero/opendata/sagittarius/aiolos";
 
-service Saggitarius {
+service Service {
   rpc Create (Callback) returns (Response);
   rpc Update (Callback) returns (Response);
   rpc Delete (Callback) returns (Response);

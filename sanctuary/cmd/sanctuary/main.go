@@ -3,13 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
 
-	"github.com/Finciero/opendata/aries/mu"
+	"github.com/Finciero/opendata/aries"
 	"github.com/Finciero/opendata/sanctuary/cmd/sanctuary/api"
 	"github.com/Finciero/opendata/sanctuary/cmd/sanctuary/auth"
-	"github.com/Finciero/opendata/taurus/aldebaran"
 	"github.com/urfave/negroni"
 	"google.golang.org/grpc"
 )
@@ -30,22 +28,16 @@ func main() {
 	srv := grpc.NewServer()
 
 	// Dial with Mu
-	muIP := fmt.Sprintf("%s:%d", *muHost, *muPort)
-	conn, err := grpc.Dial(muIP, grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("did not connect: %s", err)
-	}
-	defer conn.Close()
-	ms := mu.NewServiceClient(conn)
+	ms := aries.NewMu(&aries.Config{
+		Host: *muHost,
+		Port: *muPort,
+	})
 
 	// Dial with Aldebaran
-	aldebaranIP := fmt.Sprintf("%s:%d", *aldebaranHost, *aldebaranPort)
-	conn, err = grpc.Dial(aldebaranIP, grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("did not connect: %s", err)
-	}
-	defer conn.Close()
-	as := aldebaran.NewServiceClient(conn)
+	as := taurus.NewAldebaran(&taurus.Config{
+		Host: *aldebaranHost,
+		Port: *aldebaranPort,
+	})
 
 	authCtx := &auth.Context{
 		AldebaranClient: as,

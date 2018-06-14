@@ -10,14 +10,15 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/Finciero/opendata/gemini/gemini"
+	"github.com/Finciero/opendata/gemini"
+	"github.com/Finciero/opendata/gemini/castor"
 	"github.com/Finciero/opendata/gemini/kanon"
 	"github.com/Finciero/opendata/gemini/saga"
 )
 
 var (
-	host = flag.String("host", "", "Service host (Overwriten if GEMINI_SERVICE_HOST env var is set)")
-	port = flag.Int("port", 4000, "Service port (Overwriten if GEMINI_SERVICE_PORT env var is set)")
+	host = flag.String("host", "", "Service host (Overwriten if CASTOR_SERVICE_HOST env var is set)")
+	port = flag.Int("port", 4000, "Service port (Overwriten if CASTOR_SERVICE_PORT env var is set)")
 
 	kanonHost = flag.String("kanon-host", "kanon", "Service host (Overwriten if KANON_SERVICE_HOST env var is set)")
 	kanonPort = flag.Int("kanon-port", 4001, "Service port (Overwriten if KANON_SERVICE_PORT env var is set)")
@@ -31,47 +32,41 @@ func main() {
 	srv := grpc.NewServer()
 
 	// Dial with Kanon
-	kanonIP := fmt.Sprintf("%s:%d", *kanonHost, *kanonPort)
-	conn, err := grpc.Dial(kanonIP, grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("did not connect: %s", err)
-	}
-	defer conn.Close()
-	ks := kanon.NewServiceClient(conn)
+	ks := gemini.NewKanon(&gemini.Config{
+		Host: *kanonHost,
+		Port: *kanonPort,
+	})
 
 	// Dial with Saga
-	sagaIP := fmt.Sprintf("%s:%d", *sagaHost, *sagaPort)
-	conn, err = grpc.Dial(sagaIP, grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("did not connect: %s", err)
-	}
-	defer conn.Close()
-	ss := saga.NewServiceClient(conn)
+	ss := gemini.NewSaga(&gemini.Config{
+		Host: *sagaHost,
+		Port: *sagaPort,
+	})
 
-	gs := &GeminiService{
+	gs := &CastorService{
 		KanonClient: ks,
 		SagaClient:  ss,
 	}
 
-	gemini.RegisterServiceServer(srv, gs)
+	castor.RegisterServiceServer(srv, gs)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	log.Println("starting gemini service...")
+	log.Println("starting Castor service...")
 	log.Println(fmt.Sprintf("listening on: %s:%d", *host, *port))
 	srv.Serve(lis)
 }
 
-// GeminiService implements gemini interface of gemini package
-type GeminiService struct {
+// CastorService implements gemini interface of gemini package
+type CastorService struct {
 	KanonClient kanon.ServiceClient
 	SagaClient  saga.ServiceClient
 }
 
 // Card ...
-func (ss *GeminiService) Card(ctx context.Context, r *gemini.Request) (*gemini.Response, error) {
+func (ss *CastorService) Card(ctx context.Context, r *castor.Request) (*castor.Response, error) {
 	go ss.KanonClient.GetTransactions(ctx, &kanon.Request{
 		ReferenceId: r.ReferenceId,
 		UserId:      r.UserId,
@@ -85,7 +80,7 @@ func (ss *GeminiService) Card(ctx context.Context, r *gemini.Request) (*gemini.R
 		return nil, err
 	}
 
-	return &gemini.Response{
+	return &castor.Response{
 		StatusCode: balance.StatusCode,
 		Balance: &saga.Balance{
 			Email:   balance.Balance.Email,

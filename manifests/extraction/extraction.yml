@@ -29,8 +29,8 @@ spec:
         release: stable
     spec:
       containers:
-      - name: gemini
-        image: gcr.io/finciero-gold/gemini:v0.0.1
+      - name: castor
+        image: gcr.io/finciero-gold/castor:v0.0.1
         imagePullPolicy: Never
         ports:
         - containerPort: 4000
