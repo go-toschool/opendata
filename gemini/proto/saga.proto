@@ -19,5 +19,5 @@ message Response {
 message Balance {
   string user_id = 1;
   string email = 2;
-  int32 balance = 3;
+  float balance = 3;
 }

@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth
+  labels:
+    app: auth
+    tier: backend
+spec:
+  selector:
+    app: auth
+    tier: backend
+  ports:
+  - name: frontend
+    port: 80
+    protocol: TCP
+    targetPort: http
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: auth
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: gemini
+        tier: backend
+        release: stable
+    spec:
+      containers:
+      - name: santuary
+        image: gcr.io/finciero-gold/sanctuary:v0.0.1
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 2000
+          name: http
+        command: ["sanctuary"]
+      - name: mu
+        image: gcr.io/finciero-gold/mu:v0.0.1
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 2001
+          name: mu-grpc
+        command: ["mu"]
+      - name: aldebaran
+        image: gcr.io/finciero-gold/aldebaran:v0.0.1
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 2002
+          name: aldebaran-grpc
+        command: ["aldebaran"]

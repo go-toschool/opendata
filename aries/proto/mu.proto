@@ -9,7 +9,7 @@ service Service {
 
 message Request {
   string partner_token = 1;
-  string user_token = 1;
+  string user_token = 2;
 }
 
 message Response {
@@ -19,6 +19,5 @@ message Response {
 }
 
 message Balance {
-    int32 status_code = 1;
-    float balance = 2;
+  float balance = 1;
 }
