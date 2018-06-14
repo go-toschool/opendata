@@ -1,0 +1,11 @@
+FROM alpine:3.4
+
+RUN apk add --update ca-certificates
+
+MAINTAINER rodrigo <rf@finciero.com>
+
+COPY bin/mu /usr/bin/mu
+
+EXPOSE 2000
+
+ENTRYPOINT ["mu"]

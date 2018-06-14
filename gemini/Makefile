@@ -63,15 +63,15 @@ buildsaga:
 
 dockergemini: buildgemini
 	@echo "[docker] Building image..."
-	@docker build -t $(REGISTRY_URL)/$(SVC):$(VERSION) -f manifests/DockerfileGemini .
+	@docker build -t $(REGISTRY_URL)/$(SVC):$(VERSION) -f manifests/$(SVC) .
 
 dockerkanon: buildkanon
 	@echo "[docker] Building image..."
-	@docker build -t $(REGISTRY_URL)/$(SVC2):$(VERSION) -f manifests/DockerfileKanon .
+	@docker build -t $(REGISTRY_URL)/$(SVC2):$(VERSION) -f manifests/$(SVC2) .
 
 dockersaga: buildsaga
 	@echo "[docker] Building image..."
-	@docker build -t $(REGISTRY_URL)/$(SVC3):$(VERSION) -f manifests/DockerfileSaga .
+	@docker build -t $(REGISTRY_URL)/$(SVC3):$(VERSION) -f manifests/$(SVC3) .
 
 docker d: dockergemini dockerkanon dockersaga
 	@echo "[docker] Building image..."

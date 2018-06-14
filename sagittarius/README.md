@@ -1,5 +1,6 @@
 # Sagittarius
 
+<img src="sagittarius.png" alt="Sagittarius" align="left" width="160" />
 This service implements a simple CRUD to manage users callback for asynchronous responses.
 
 We implements a service interface, that let us communicate other services to make asyncrouns calls to other services over internet.
