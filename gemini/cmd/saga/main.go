@@ -1,16 +1,56 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
 	"net"
 
 	context "golang.org/x/net/context"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 
 	"github.com/Finciero/opendata/gemini/brickwall"
 	"github.com/Finciero/opendata/gemini/saga"
 )
+
+var (
+	host = flag.String("host", "", "Service host (Overwriten if CASTOR_SERVICE_HOST env var is set)")
+	port = flag.Int("port", 4002, "Service port (Overwriten if SAGA_SERVICE_PORT env var is set)")
+
+	sagaCert = flag.String("saga-cert", "", "Saga cert (Overwriten if SAGA_CERT env var is set)")
+	sagaKey  = flag.String("saga-key", "", "Saga key (Overwriten if SAGA_KEY env var is set)")
+)
+
+func main() {
+	flag.Parse()
+
+	brickwallClient := brickwall.NewClient(&brickwall.Config{
+		Token: "",
+	})
+
+	gs := &SagaService{
+		BrickwallClient: brickwallClient,
+	}
+
+	creds, err := credentials.NewServerTLSFromFile(*sagaCert, *sagaKey)
+	if err != nil {
+		log.Fatalf("could not load TLS keys: %s", err)
+	}
+	opts := []grpc.ServerOption{grpc.Creds(creds)}
+
+	srv := grpc.NewServer(opts...)
+	saga.RegisterServiceServer(srv, gs)
+
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	log.Println("starting saga service...")
+	log.Println("listening on: 4002")
+	srv.Serve(lis)
+}
 
 // SagaService implements gemini interface of gemini package
 type SagaService struct {
@@ -37,26 +77,4 @@ func (ss *SagaService) GetBalance(ctx context.Context, r *saga.Request) (*saga.R
 			UserId:  "",
 		},
 	}, nil
-}
-
-func main() {
-	srv := grpc.NewServer()
-
-	brickwallClient := brickwall.NewClient(&brickwall.Config{
-		Token: "",
-	})
-
-	gs := &SagaService{
-		BrickwallClient: brickwallClient,
-	}
-
-	saga.RegisterServiceServer(srv, gs)
-
-	lis, err := net.Listen("tcp", ":4002")
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	log.Println("starting saga service...")
-	log.Println("listening on: 4002")
-	srv.Serve(lis)
 }

@@ -9,6 +9,7 @@ import (
 	context "golang.org/x/net/context"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 
 	"github.com/Finciero/opendata/gemini"
 	"github.com/Finciero/opendata/gemini/castor"
@@ -25,22 +26,40 @@ var (
 
 	sagaHost = flag.String("saga-host", "saga", "Service host (Overwriten if SAGA_SERVICE_HOST env var is set)")
 	sagaPort = flag.Int("saga-port", 4002, "Service port (Overwriten if SAGA_SERVICE_PORT env var is set)")
+
+	castorCert = flag.String("castor-cert", "", "Castor cert (Overwriten if CASTOR_CERT env var is set)")
+	castorKey  = flag.String("castor-key", "", "Castor key (Overwriten if CASTOR_KEY env var is set)")
+
+	kanonCert = flag.String("kanon-cert", "", "Kanon cert (Overwriten if KANON_CERT env var is set)")
+	sagaCert  = flag.String("saga-cert", "", "Saga cert (Overwriten if SAGA_CERT env var is set)")
 )
 
 func main() {
 	flag.Parse()
-	srv := grpc.NewServer()
-
 	// Dial with Kanon
 	ks := gemini.NewKanon(&gemini.Config{
 		Host: *kanonHost,
 		Port: *kanonPort,
+		Cert: *kanonCert,
 	})
+
+	ctx := context.Background()
+	rr, err := ks.GetTransactions(ctx, &kanon.Request{
+		AccountId:   "asdfasdfasdf",
+		ReferenceId: "fasdfasdf",
+		UserId:      "fasdsdf",
+	})
+	if err != nil {
+		log.Fatalf("failed to retrieve response: %v", err)
+	}
+
+	fmt.Println(rr.Message)
 
 	// Dial with Saga
 	ss := gemini.NewSaga(&gemini.Config{
 		Host: *sagaHost,
 		Port: *sagaPort,
+		Cert: *sagaCert,
 	})
 
 	gs := &CastorService{
@@ -48,9 +67,16 @@ func main() {
 		SagaClient:  ss,
 	}
 
+	creds, err := credentials.NewServerTLSFromFile(*castorCert, *castorKey)
+	if err != nil {
+		log.Fatalf("could not load TLS keys: %s", err)
+	}
+	opts := []grpc.ServerOption{grpc.Creds(creds)}
+
+	srv := grpc.NewServer(opts...)
 	castor.RegisterServiceServer(srv, gs)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
+	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", *host, *port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

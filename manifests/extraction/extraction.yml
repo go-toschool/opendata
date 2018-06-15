@@ -2,18 +2,16 @@ apiVersion: v1
 kind: Service
 metadata:
   name: extraction
-  labels:
-    app: extraction
-    tier: backend
 spec:
   selector:
     app: extraction
-    tier: backend
+    tier: frontend
   ports:
-  - name: frontend
-    port: 80
+  - name: extraction
     protocol: TCP
-    targetPort: http
+    port: 4000
+    targetPort: castor-grpc
+  type: LoadBalancer
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -33,20 +31,98 @@ spec:
         image: gcr.io/finciero-gold/castor:v0.0.1
         imagePullPolicy: Never
         ports:
-        - containerPort: 4000
-          name: http
-        command: ["gemini"]
+        - name: castor-grpc
+          containerPort: 4000
+        resources:
+          limits:
+            cpu: 50m
+            memory: 128Mi
+        args:
+        - -castor-cert
+        - $(CASTOR_CERT)
+        - -castor-key
+        - $(CASTOR_KEY)
+        - -kanon-cert
+        - $(KANON_CERT)
+        - -saga-cert
+        - $(SAGA_CERT)
+        env:
+        - name: CASTOR_CERT
+          value: "/etc/castor/castorcert"
+        - name: CASTOR_KEY
+          value: "/etc/castor/castorkey"
+        - name: KANON_CERT
+          value: "/etc/kanon/kanoncert"
+        - name: SAGA_CERT
+          value: "/etc/saga/sagacert"
+        volumeMounts:
+          - mountPath: /etc/castor
+            name: castor
+            readOnly: true
+          - mountPath: /etc/kanon
+            name: kanon
+            readOnly: true
+          - mountPath: /etc/saga
+            name: saga
+            readOnly: true
+        command: ["castor"]
       - name: kanon
         image: gcr.io/finciero-gold/kanon:v0.0.1
         imagePullPolicy: Never
         ports:
-        - containerPort: 4001
-          name: kanon-grpc
+        - name: kanon-grpc
+          containerPort: 4001
+        resources:
+          limits:
+            cpu: 50m
+            memory: 128Mi
+        args:
+        - -kanon-cert
+        - $(KANON_CERT)
+        - -kanon-key
+        - $(KANON_KEY)
+        env:
+        - name: KANON_CERT
+          value: "/etc/kanon/kanoncert"
+        - name: KANON_KEY
+          value: "/etc/kanon/kanonkey"
+        volumeMounts:
+          - mountPath: /etc/kanon
+            name: kanon
+            readOnly: true
         command: ["kanon"]
       - name: saga
         image: gcr.io/finciero-gold/saga:v0.0.1
         imagePullPolicy: Never
         ports:
-        - containerPort: 4002
-          name: saga-grpc
+        - name: saga-grpc
+          containerPort: 4002
+        resources:
+          limits:
+            cpu: 50m
+            memory: 128Mi
+        args:
+        - -saga-cert
+        - $(SAGA_CERT)
+        - -saga-key
+        - $(SAGA_KEY)
+        env:
+        - name: SAGA_CERT
+          value: "/etc/saga/sagacert"
+        - name: SAGA_KEY
+          value: "/etc/saga/sagakey"
+        volumeMounts:
+          - mountPath: /etc/saga
+            name: saga
+            readOnly: true
         command: ["saga"]
+      volumes:
+        - name: castor
+          secret:
+            secretName: castorsecret
+        - name: kanon
+          secret:
+            secretName: kanonsecret
+        - name: saga
+          secret:
+            secretName: sagasecret
