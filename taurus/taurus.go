@@ -8,12 +8,13 @@ import (
 	"google.golang.org/grpc"
 )
 
+// Config hold data to connect to this service
 type Config struct {
 	Host string
 	Port int
 }
 
-func NewMu(c *Config) aldebaran.ServiceClient {
+func NewAldebaran(c *Config) aldebaran.ServiceClient {
 	IP := fmt.Sprintf("%s:%d", c.Host, c.Port)
 	conn, err := grpc.Dial(IP, grpc.WithInsecure())
 	if err != nil {
