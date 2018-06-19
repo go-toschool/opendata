@@ -4,17 +4,18 @@ package aldebaran;
 option go_package = "github.com/Finciero/opendata/taurus/aldebaran";
 
 service Service {
-  rpc CreateToken (Request) returns (Response);
+  rpc CreateToken (Create) returns (CreateResponse);
+  rpc CheckToken (Check) returns (CheckResponse);
 }
 
-message Request {
+message Create {
   string email = 1;
-  string Password = 2;
-  string client_token = 3;
+  string client_token = 2;
 }
 
-message Response {
+message CreateResponse {
   int32 status_code = 1;
   string message = 2;
   string token = 3;
 }
+

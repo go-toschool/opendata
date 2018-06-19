@@ -30,9 +30,8 @@ func createSession(ctx *Context, w http.ResponseWriter, r *http.Request) (*Respo
 	}
 
 	c := context.Background()
-	rr, err := ctx.TaurusClient.CreateToken(c, &aldebaran.Request{
+	rr, err := ctx.TaurusClient.CreateToken(c, &aldebaran.Create{
 		Email:       user.Email,
-		Password:    user.Password,
 		ClientToken: clientToken,
 	})
 	if err != nil {

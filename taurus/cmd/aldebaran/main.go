@@ -1,20 +1,27 @@
 package main
 
 import (
+	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
 	"log"
 	"net"
+	"strings"
+	"time"
+
+	sigiriyaPkg "github.com/Finciero/sigiriya"
 
 	"golang.org/x/net/context"
 
 	"github.com/Finciero/opendata/taurus/aldebaran"
+	"github.com/Finciero/opendata/taurus/sigiriya"
 	"google.golang.org/grpc"
 )
 
@@ -46,18 +53,92 @@ func main() {
 
 // AldebaranService implements aldebaran interface.
 type AldebaranService struct {
+	SigiriyaClient *sigiriya.Client
 }
 
 // CreateToken create a new Auth token
-func (as *AldebaranService) CreateToken(ctx context.Context, r *aldebaran.Request) (*aldebaran.Response, error) {
-	return &aldebaran.Response{}, nil
+func (as *AldebaranService) CreateToken(ctx context.Context, r *aldebaran.Create) (*aldebaran.CreateResponse, error) {
+	now := time.Now()
+	text := fmt.Sprintf("%s#%s#%s", r.Email, r.ClientToken, now.String())
+	token, err := encryptString(text, r.ClientToken)
+	if err != nil {
+		return nil, err
+	}
+
+	data := &sigiriyaPkg.AuthApplication{
+		Email:     r.Email,
+		Client:    r.ClientToken,
+		Token:     token,
+		CreatedAt: now,
+	}
+	b, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := as.SigiriyaClient.Post("/auth", bytes.NewReader(b))
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(string(resp))
+
+	return &aldebaran.CreateResponse{
+		StatusCode: 200,
+		Message:    "Token generated",
+		Token:      token,
+	}, nil
+}
+
+// CheckToken validate user token
+func (as *AldebaranService) CheckToken(ctx context.Context, r *aldebaran.Check) (*aldebaran.CheckResponse, error) {
+	text, err := decryptString(r.UserToken, r.ClientToken)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := as.SigiriyaClient.Get(fmt.Sprintf("/auth?token=%s", r.UserToken))
+	if err != nil {
+		return nil, err
+	}
+
+	payload := new(struct {
+		StatusCode int32                       `json:"status_code"`
+		Data       sigiriyaPkg.AuthApplication `json:"data"`
+	})
+	if err := json.Unmarshal(resp, &payload); err != nil {
+		return nil, err
+	}
+
+	if payload.StatusCode == 404 {
+		return &aldebaran.CheckResponse{
+			StatusCode: 404,
+			Message:    "Invalid token",
+			Valid:      false,
+		}, nil
+	}
+
+	splitted := strings.Split(text, "#")
+	cutOffTime, err := time.Parse(time.RFC3339, splitted[2])
+	if err != nil {
+		return nil, err
+	}
+
+	valid := strings.Contains(splitted[0], payload.Data.Email) &&
+		strings.Contains(splitted[1], payload.Data.Token) &&
+		payload.Data.CreatedAt == cutOffTime
+
+	return &aldebaran.CheckResponse{
+		StatusCode: 200,
+		Message:    "Validated token",
+		Valid:      valid,
+	}, nil
 }
 
 // Takes two strings, cryptoText and keyString.
 // cryptoText is the text to be decrypted and the keyString is the key to use for the decryption.
 // The function will output the resulting plain text string with an error variable.
 func decryptString(cryptoText string, keyString string) (plainTextString string, err error) {
-
 	encrypted, err := base64.URLEncoding.DecodeString(cryptoText)
 	if err != nil {
 		return "", err
@@ -93,7 +174,6 @@ func decryptAES(key, data []byte) ([]byte, error) {
 // plainText is the text that needs to be encrypted by keyString.
 // The function will output the resulting crypto text and an error variable.
 func encryptString(plainText string, keyString string) (cipherTextString string, err error) {
-
 	key := hashTo32Bytes(keyString)
 	encrypted, err := encryptAES(key, []byte(plainText))
 	if err != nil {
@@ -104,7 +184,6 @@ func encryptString(plainText string, keyString string) (cipherTextString string,
 }
 
 func encryptAES(key, data []byte) ([]byte, error) {
-
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -127,9 +206,6 @@ func encryptAES(key, data []byte) ([]byte, error) {
 	return output, nil
 }
 
-// As we cannot use a variable length key, we must cut the users key
-// up to or down to 32 bytes. To do this the function takes a hash
-// of the key and cuts it down to 32 bytes.
 func hashTo32Bytes(input string) []byte {
 	data := sha256.Sum256([]byte(input))
 	return data[0:]

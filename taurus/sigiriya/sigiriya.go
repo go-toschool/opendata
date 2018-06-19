@@ -1,8 +1,10 @@
 package sigiriya
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -31,10 +33,9 @@ func (ce *clientErr) Error() string {
 // Client represents a sigiriya client, this client
 // let us post information to sigiriya service.
 type Client struct {
-	client    http.Client
-	apiURL    string
-	token     string
-	userToken string
+	client http.Client
+	apiURL string
+	token  string
 }
 
 // Config represent basic information to setup a new
@@ -56,7 +57,6 @@ func NewClient(c *Config) *Client {
 func (c *Client) do(req *http.Request) ([]byte, error) {
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
-	req.Header.Set("X-Finciero-User-Token", fmt.Sprintf("Bearer %s", c.userToken))
 
 	resp, err := c.client.Do(req)
 	if err != nil {
@@ -92,9 +92,25 @@ func (c *Client) Get(path string) ([]byte, error) {
 	return payloadBytes, nil
 }
 
-// SetUserToken ...
-func (c *Client) SetUserToken(token string) {
-	c.userToken = token
+// Post make a POST request.
+func (c *Client) Post(path string, body io.Reader) ([]byte, error) {
+	b, err := ioutil.ReadAll(body)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", c.url(path), bytes.NewReader(b))
+	if err != nil {
+		return nil, newError("failed to create request", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	payloadBytes, err := c.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return payloadBytes, nil
 }
 
 func (c *Client) url(path string) string { return c.apiURL + path }

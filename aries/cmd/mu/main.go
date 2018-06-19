@@ -10,6 +10,7 @@ import (
 	"net"
 
 	"github.com/Finciero/opendata/gemini"
+	"github.com/Finciero/opendata/gemini/castor"
 
 	"github.com/Finciero/opendata/aries/mu"
 	"github.com/Finciero/opendata/aries/sigiriya"
@@ -31,7 +32,7 @@ func main() {
 	srv := grpc.NewServer()
 
 	// Dial with Gemini
-	gs := gemini.NewCastor(&gemini.Config{
+	cs := gemini.NewCastor(&gemini.Config{
 		Host: *geminiHost,
 		Port: *geminiPort,
 	})
@@ -42,7 +43,7 @@ func main() {
 
 	ms := &MuService{
 		SigiriyaClient: sc,
-		GeminiClient:   gs,
+		CastorClient:   cs,
 	}
 
 	mu.RegisterServiceServer(srv, ms)
@@ -61,7 +62,7 @@ func main() {
 // MuService ...
 type MuService struct {
 	SigiriyaClient *sigiriya.Client
-	GeminiClient   gemini.ServiceClient
+	CastorClient   castor.ServiceClient
 }
 
 type sigiriyaResponse struct {
@@ -69,12 +70,12 @@ type sigiriyaResponse struct {
 	VanityNumber    string `json:"vanity_number,omitempty"`
 	ReferenceID     string `json:"reference_id,omitempty"`
 	ReferenceUserID string `json:"reference_user_id,omitempty"`
-	Authorization   bool   `json:"authorization,omitempty"`
 }
 
 // Auth ...
 func (ms *MuService) Auth(ctx context.Context, r *mu.Request) (*mu.Response, error) {
-	resp, err := ms.SigiriyaClient.Get(fmt.Sprintf("/session?token=%s", r.UserToken))
+	ms.SigiriyaClient.SetUserToken(r.UserToken)
+	resp, err := ms.SigiriyaClient.Get("/auth")
 	if err != nil {
 		return nil, err
 	}
@@ -84,14 +85,10 @@ func (ms *MuService) Auth(ctx context.Context, r *mu.Request) (*mu.Response, err
 		return nil, err
 	}
 
-	if !srr.Authorization {
-		return nil, errors.New("unauthorized")
-	}
-
-	rr, err := ms.GeminiClient.Card(ctx, &gemini.Request{
-		ClientId:   r.PartnerToken,
-		UserId:     srr.ReferenceUserID,
-		RefereceId: srr.ReferenceID,
+	rr, err := ms.CastorClient.Card(ctx, &castor.Request{
+		ClientId:    r.PartnerToken,
+		UserId:      srr.ReferenceUserID,
+		ReferenceId: srr.ReferenceID,
 	})
 	if err != nil {
 		return nil, err
@@ -105,8 +102,8 @@ func (ms *MuService) Auth(ctx context.Context, r *mu.Request) (*mu.Response, err
 				Balance: rr.Balance.Balance,
 			},
 			Account: &mu.Account{
-				Id:       "",
-				VanityId: "",
+				Id:       srr.ID,
+				VanityId: srr.VanityNumber,
 			},
 		}, nil
 	}

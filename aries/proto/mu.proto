@@ -5,6 +5,7 @@ option go_package = "github.com/Finciero/opendata/aries/mu";
 
 service Service {
   rpc Auth (Request) returns (Response);
+  rpc CheckToken (Check) returns (CheckResponse);
 }
 
 message Request {
@@ -26,4 +27,16 @@ message Balance {
 message Account {
   string id = 1;
   string vanity_id = 2;
+}
+
+message Check {
+  string email = 1;
+  string client_token = 2;
+  string user_token = 3;
+}
+
+message CheckResponse {
+  int32 status_code = 1;
+  string message = 2;
+  bool valid = 3;
 }
