@@ -76,3 +76,21 @@ func respondWithJSON(w http.ResponseWriter,code int, payload interface{} ){
 	w.WriteHeader(code)
 	w.Write(responses)
 }
+
+func main () {
+
+	router := mux.NewRouter()
+
+	router.HandleFunc("/partner", getPartner).Methods("GET")
+	router.HandleFunc("/partner/{id}", GetPartnersfromID).Methods("GET")
+	router.HandleFunc("/partner/{name}", GetPartnersformName).Methods("GET")
+	router.HandleFunc("/partner/{email}", GetPartnerfromEmail).Methods("GET")
+	router.HandleFunc("/partner/{token}", GetPartnerfromToken).Methods("GET")
+	router.HandleFunc("/partner", CreatePartner).Methods("POST")
+	router.HandleFunc("/partner/{id}", UpdatePartner).Methods("POST")
+	router.HandleFunc("/partner/{id}", DeletePartner).Methods("POST")
+
+	log.Fatal(http.ListenAndServe(":5000",router))
+
+
+}
