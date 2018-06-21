@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/Finciero/opendata/capricornius/shura"
+	"google.golang.org/grpc/metadata"
 )
 
 const (
@@ -42,6 +44,14 @@ func (m *Middleware) Handle(next http.Handler) http.Handler {
 		}
 
 		ctx := context.Background()
+		meta := map[string]string{
+			"service":  "sanctuary",
+			"endpoint": "api",
+			"version":  "v0.0.1",
+			"time":     time.Now().String(),
+		}
+		md := metadata.New(meta)
+		ctx = metadata.NewIncomingContext(ctx, md)
 		rr, err := m.ShuraClient.GetToken(ctx, &shura.Token{
 			PartnerToken: token,
 		})
