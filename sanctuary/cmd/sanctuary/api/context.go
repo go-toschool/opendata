@@ -9,7 +9,7 @@ import (
 	"unicode"
 
 	"github.com/Finciero/opendata/aries/mu"
-	"github.com/Finciero/opendata/taurus/aldebaran"
+	"github.com/Finciero/opendata/capricornius/shura"
 
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
@@ -17,8 +17,16 @@ import (
 
 // Context contains all services and variables of the applications.
 type Context struct {
-	AldebaranClient aldebaran.ServiceClient
-	MuClient        mu.ServiceClient
+	ShuraClient    shura.ServiceClient
+	MuClient       mu.ServiceClient
+	AllowedOrigins []string
+	// private
+	clientToken string
+}
+
+// SetClientToken ...
+func (c *Context) SetClientToken(token string) {
+	c.clientToken = token
 }
 
 // Handle creates a new bounded Handler with context.
@@ -75,6 +83,13 @@ type Handler struct {
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	token, err := parseAdminAuthToken(r)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("unauthorized access: %s", err.Error()), http.StatusUnauthorized)
+		return
+	}
+
+	h.ctx.SetClientToken(token)
 	resp, err := h.handle(h.ctx, w, r)
 	if err != nil {
 		fmt.Printf("[ERROR]: unexpected unhandled error: %v", err)

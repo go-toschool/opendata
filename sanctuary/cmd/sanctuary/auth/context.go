@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"unicode"
 
+	"github.com/Finciero/opendata/capricornius/shura"
 	"github.com/Finciero/opendata/taurus/aldebaran"
 
 	"golang.org/x/text/transform"
@@ -16,7 +17,9 @@ import (
 
 // Context contains all services and variables of the applications.
 type Context struct {
-	TaurusClient aldebaran.ServiceClient
+	AldebaranClient aldebaran.ServiceClient
+	ShuraClient     shura.ServiceClient
+	AllowedOrigins  []string
 }
 
 // Handle creates a new bounded Handler with context.
@@ -73,7 +76,6 @@ type Handler struct {
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
 	resp, err := h.handle(h.ctx, w, r)
 	if err != nil {
 		fmt.Printf("[ERROR]: unexpected unhandled error: %v", err)
