@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package shura;
+option go_package = "github.com/Finciero/opendata/capricornius/shura";
+
+service Service {
+  rpc Create (Partner) returns (Response);
+  rpc Delete (Partner) returns (Response);
+  rpc Update (Partner) returns (Response);
+  rpc GetToken (Token) returns (TokenResponse);
+  rpc GetOrigins (Origin) returns (Origins);
+}
+
+message Partner {
+  string partner_token = 1;
+  string user_token = 2;
+}
+
+message Token {
+  string partner_token = 1;
+}
+
+message Response {
+  int32 status_code = 1;
+  string message = 2;
+}
+
+message TokenResponse {
+  int32 status_code = 1;
+  string message = 2;
+  bool valid = 3;
+}
+
+message Origin {}
+
+message Origins {
+  repeated string allowed_origins = 1;
+}

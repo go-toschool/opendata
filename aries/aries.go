@@ -19,6 +19,6 @@ func NewMu(c *Config) mu.ServiceClient {
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}
-	defer conn.Close()
+
 	return mu.NewServiceClient(conn)
 }

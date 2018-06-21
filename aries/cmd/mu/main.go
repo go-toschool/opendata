@@ -72,8 +72,8 @@ type sigiriyaResponse struct {
 	ReferenceUserID string `json:"reference_user_id,omitempty"`
 }
 
-// Auth ...
-func (ms *MuService) Auth(ctx context.Context, r *mu.Request) (*mu.Response, error) {
+// Extract ...
+func (ms *MuService) Extract(ctx context.Context, r *mu.Request) (*mu.Response, error) {
 	ms.SigiriyaClient.SetUserToken(r.UserToken)
 	resp, err := ms.SigiriyaClient.Get("/auth")
 	if err != nil {

@@ -4,8 +4,8 @@ package mu;
 option go_package = "github.com/Finciero/opendata/aries/mu";
 
 service Service {
-  rpc Auth (Request) returns (Response);
-  rpc CheckToken (Check) returns (CheckResponse);
+  rpc Extract (Request) returns (Response);
+  // rpc CheckToken (Check) returns (CheckResponse);
 }
 
 message Request {

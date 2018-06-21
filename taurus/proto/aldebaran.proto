@@ -19,3 +19,13 @@ message CreateResponse {
   string token = 3;
 }
 
+message Check {
+  string client_token = 2;
+  string user_token = 3;
+}
+
+message CheckResponse {
+  int32 status_code = 1;
+  string message = 2;
+  bool valid = 3;
+}
