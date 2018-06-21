@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/Finciero/opendata/capricornius"
@@ -14,7 +15,6 @@ import (
 	"github.com/Finciero/opendata/sanctuary/cmd/sanctuary/auth"
 	"github.com/Finciero/opendata/taurus"
 	"github.com/urfave/negroni"
-	"google.golang.org/grpc"
 )
 
 var (
@@ -33,7 +33,6 @@ var (
 
 func main() {
 	flag.Parse()
-	srv := grpc.NewServer()
 
 	// Dial with Mu
 	ms := aries.NewMu(&aries.Config{
@@ -52,6 +51,7 @@ func main() {
 		Host: *shuraHost,
 		Port: *shuraPort,
 	})
+
 	ctx := context.Background()
 	origins, err := ss.GetOrigins(ctx, &shura.Origin{})
 	if err != nil {
@@ -80,6 +80,6 @@ func main() {
 	n.UseHandler(mux)
 
 	addr := fmt.Sprintf("%s:%d", *host, *port)
-	logger.Printf("Start listening on %s", addr)
-	logger.Fatal(http.ListenAndServe(addr, n))
+	log.Printf("Start listening on %s", addr)
+	log.Fatal(http.ListenAndServe(addr, n))
 }
