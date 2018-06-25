@@ -40,10 +40,7 @@ const (
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	tableCreationPartner := sq.Insert("Partner").Columns("Name","Email","Phone","Password","Token")
 
-	tableGetPartner := sq.Select("*").From("Partner")
-
-	tableUpdatePartner := sq.Update("?").From("Partner")
-	
+	tableGetPartner := sq.Select("*").From("Partner")	
 )
 
 func (p *Partner) GetPartnerfromID(db *sql.DB) error {
@@ -110,13 +107,30 @@ func (p *Partner) GetallPartner(db *sql.DB, count int) error {
 		partners = append(partners, &Partner)
 	}
 	return partners
-
-
-	return error.New("not implemented yet")
 }
 
 func (p *Partner) UpdatePartner(db *sql.DB) error {
+	tableUpdatePartner := sq.Update("Partner").Where(sq.Eq{"Id":&p.ID})
+	switch  {
+		case &p.Name != nil:
+			tableUpdatePartner = tableUpdatePartner.Set("Name",&p.Name)
 
+		case &p.email != nil:
+			tableUpdatePartner = tableUpdatePartner.Set("Email",&p.Email)
+
+		case &p.phone != nil:
+			tableUpdatePartner = tableUpdatePartner.Set("Phone",&p.Phone)
+
+		case &p.password != nil:
+			tableUpdatePartner = tableUpdatePartner.Set("Password",&p.Password)
+
+		case &p.token != nil:
+			tableUpdatePartner = tableUpdatePartner.Set("Token", &p.Token)
+	}
+	
+	sql,args, err := tableUpdatePartner.ToSql()
+	db.Exec(sql)
+	return err 
 }
 
 func (p *Partner) DeletePartner(db *sql.DB) error {
