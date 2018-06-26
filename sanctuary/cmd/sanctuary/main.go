@@ -28,7 +28,7 @@ var (
 	aldebaranPort = flag.Int("aldebaran-port", 2002, "Service port (Overwriten if ALDEBARAN_SERVICE_PORT env var is set)")
 
 	shuraHost = flag.String("shura-host", "shura", "Service host (Overwriten if SHURA_SERVICE_HOST env var is set)")
-	shuraPort = flag.Int("shura-port", 2002, "Service port (Overwriten if SHURA_SERVICE_PORT env var is set)")
+	shuraPort = flag.Int("shura-port", 3000, "Service port (Overwriten if SHURA_SERVICE_PORT env var is set)")
 )
 
 func main() {

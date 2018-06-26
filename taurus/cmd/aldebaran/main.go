@@ -27,7 +27,7 @@ import (
 
 var (
 	host = flag.String("host", "", "Service host (Overwriten if ALDEBARAN_SERVICE_HOST env var is set)")
-	port = flag.Int("port", 2000, "Service port (Overwriten if ALDEBARAN_SERVICE_PORT env var is set)")
+	port = flag.Int("port", 2002, "Service port (Overwriten if ALDEBARAN_SERVICE_PORT env var is set)")
 
 	sigiriyaToken = flag.String("sigiriya-token", "", "Token to access sigiriya service.")
 )

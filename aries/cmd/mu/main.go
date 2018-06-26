@@ -19,7 +19,7 @@ import (
 
 var (
 	host = flag.String("host", "", "Service host (Overwriten if MU_SERVICE_HOST env var is set)")
-	port = flag.Int("port", 2000, "Service port (Overwriten if MU_SERVICE_PORT env var is set)")
+	port = flag.Int("port", 2001, "Service port (Overwriten if MU_SERVICE_PORT env var is set)")
 
 	geminiHost = flag.String("gemini-host", "gemini", "Service host (Overwriten if GEMINI_SERVICE_HOST env var is set)")
 	geminiPort = flag.Int("gemini-port", 4000, "Service port (Overwriten if GEMINI_SERVICE_PORT env var is set)")
