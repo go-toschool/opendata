@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 )
@@ -22,14 +23,14 @@ const (
 
 type App struct {
 	Router *mux.Router
-	DB     *sql.DB
+	DB     *sqlx.DB
 }
 
 func (a *App) Initialize(user, password, dbname string) {
 	connectionString := fmt.Sprintf("user=%s password=%s dbname=%s", user, password, dbname)
 
 	var err error
-	a.DB, err = sql.Open("postgres", connectionString)
+	a.DB, err = sqlx.Open("postgres", connectionString)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -51,6 +52,7 @@ func (a *App) getPartner(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	p:= partner{ID : id}
 	if err := p.getPartner(a.DB); err != nil {
 		switch err {
 		case sql.ErrNoRows:
