@@ -2,154 +2,181 @@ package capricornius
 
 import (
 	"database/sql"
+	"time"
+
 	sq "github.com/Masterminds/squirrel"
 	_ "github.com/lib/pq"
-
 )
 
 type Partner struct {
-	ID    string
-	Name  string
-	Email string
-	Phone int
-	Password
-	Token
+	ID       string
+	Name     string
+	Email    string
+	Phone    int
+	Password string
+	Token    string
 }
 
-type Callbaks struct {
-	User_id     string
-	ID          string
-	URL         string
-	HTTP_method string
-	Created_at
-	Delete_at
+type Callback struct {
+	UserID     string
+	ID         string
+	URL        string
+	HTTPMethod string
+	CreatedAt  time.Time
+	DeleteAt   time.Time
 }
 
 type Statistis struct {
-	User_id      string
-	Callbaks_id  string
-	Request      string
-	aug_response string
+	UserID      string
+	CallbaksID  string
+	Request     string
+	augResponse string
 }
 
-type Partners struct {
-	Records []*Partner
-}
-
-const (
+func Init() {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-	tableCreationPartner := sq.Insert("Partner").Columns("Name","Email","Phone","Password","Token")
+	tableCreationCallback := psql.Insert("Callback").Columns("User_id", "ID", "URL", "HTTP_method", "Created_at")
 
-	tableGetPartner := sq.Select("*").From("Partner")	
-)
+	tableGetPartner := psql.Select("*").From("Partner")
+	tableCreationPartner := psql.Insert("Partner").Columns("Name", "Email", "Phone", "Password", "Token")
 
-func (p *Partner) GetPartnerfromID(db *sql.DB) error {
-	FromID := tableGetPartner.Where("ID = ?").ToSql()
-
-	return FromID.QueryRow(p.ID).Scan(&p.Name, &p.email, &p.phone, &p.password, &p.token)
+	tableGetCallback := psql.Select("*").From("Calback")
 }
 
-func (p *Partner) GetPartnerfromEmail(db *sql.DB) error {
-	FromEmail:= tableGetPartner.Where("Email = ?").ToSql()	
-	rows, err := FromEmail.Query(p.email)
+func (p *Partner) getPartnerfromID(db *sql.DB) error {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+
+	tableGetPartner := psql.Select("*").From("Partner")
+	FromID := tableGetPartner.Where(sq.Eq{"ID": p.ID})
+	getPartner := FromID.ToSql()
+
+	return getPartner.QueryRow(p.ID).Scan(&p.Name, &p.Email, &p.Phone, &p.Password, &p.Token)
+}
+
+func (p *Partner) getPartnerfromEmail(db *sql.DB) ([]*Partner, error) {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	tableGetPartner := psql.Select("*").From("Partner")
+	FromEmail := tableGetPartner.Where("Email = ?").ToSql()
+	rows, err := FromEmail.Query(p.Email)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	defer rows.Close()
-	partners:= make(Partners,0)
-	for rows.Next(){
-		err:= rows.Scan(&p.Name, &p.email, &p.phone, &p.password, &p.token)
-		if err != nil{
-			log.Fatal(err)
+
+	partners := make([]*Partner, 0)
+	for rows.Next() {
+		err := rows.Scan(&p.Name, &p.Email, &p.Phone, &p.Password, &p.Token)
+		if err != nil {
+			return nil, err
 		}
-		partners = append(partners, &Partner)
+		partners = append(partners, p)
 	}
 
-	return partners
+	return partners, nil
 }
 
-func (p *Partner)GetPartnerfromEmail(db *sql.DB) error {
-	FromEmail:= tablrGetPartner.Where("Email = ?").Tosql()
-	return FromEmail.QueryRow(p.email).Scan(&p.Name, &p.email, &p.phone, &p.password, &p.token)
+func (p *Partner) getPartnerfromName(db *sql.DB) error {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	tableGetPartner := psql.Select("*").From("Partner")
+	FromName := tableGetPartner.Where("Name = ?", p.Name).ToSql()
+
+	return FromName.QueryRow(FromName).Scan(&p.Name, &p.Email, &p.Phone, &p.Password, &p.Token)
 }
 
-func (p *Partner) GetPartnerfromName(db *sql.DB)error {
-	FromName:= tableGetPartner.Where("Name = ?").ToSql()
-
-	return FromName.QueryRow(p.name).Scan(&p.Name, &p.email, &p.phone, &p.password, &p.token)
-}
-
-func (p *Partner) GetPartnerfromToken(db *sql.DB) error {
-	FromToken:= tableGetPartner.Where("Token = ?").ToSql()
-	return FromToken.Scan(&p.Name, &p.email, &p.phone, &p.password, &p.token)
+func (p *Partner) getPartnerfromToken(db *sql.DB) error {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	tableGetPartner := psql.Select("*").From("Partner")
+	FromToken := tableGetPartner.Where("Token = ?", p.Token).ToSql()
+	return FromToken.QueryRow(FromToken).Scan(&p.Name, &p.Email, &p.Phone, &p.Password, &p.Token)
 
 }
 
-func (p *Partner) CreatePartner(db *sql.DB) error {
-	values:=tableCreationPartner.Values(p.Name, p.email, p.phone, p.password, p.token)
-	sql,args, err := values.ToSql()
-	return sql.Exec()
+func (p *Partner) createPartner(db *sql.DB) error {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	tableCreationPartner := psql.Insert("Partner").Columns("Name", "Email", "Phone", "Password", "Token")
+
+	values := tableCreationPartner.Values(p.Name, p.Email, p.Phone, p.Password, p.Token)
+	sql, args, err := values.ToSql()
+	_, error := db.Exec(sql)
+	return error
 }
 
-func (p *Partner) GetallPartner(db *sql.DB, count int) error {
+func (p *Partner) getallPartner(db *sql.DB, count int) ([]*Partner, error) {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	tableGetPartner := psql.Select("*").From("Partner")
 	all := tableGetPartner.ToSql()
-	rows, err := all.Query()
+	rows, err := db.Query(all)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	defer rows.Close()
-	partners := make(Partners,0)
-	for rows.Next(){
-		err := rows.Scan(&p.Name, &p.email, &p.phone, &p.password, &p.token)
-		if err !=nil{
-			log.Fatal(err)
+	partners := make([]*Partner, 0)
+	for rows.Next() {
+		err := rows.Scan(&p.Name, &p.Email, &p.Phone, &p.Password, &p.Token)
+		if err != nil {
+			return nil, err
 		}
-		partners = append(partners, &Partner)
+		partners = append(partners, p)
 	}
-	return partners
+	return partners, nil
 }
 
 func (p *Partner) UpdatePartner(db *sql.DB) error {
-	tableUpdatePartner := sq.Update("Partner").Where(sq.Eq{"Id":&p.ID})
-	switch  {
-		case &p.Name != nil:
-			tableUpdatePartner = tableUpdatePartner.Set("Name",&p.Name)
+	tableUpdatePartner := sq.Update("Partner").Where(sq.Eq{"Id": &p.ID})
+	switch {
+	case &p.Name != nil:
+		tableUpdatePartner = tableUpdatePartner.Set("Name", &p.Name)
 
-		case &p.email != nil:
-			tableUpdatePartner = tableUpdatePartner.Set("Email",&p.Email)
+	case &p.Email != nil:
+		tableUpdatePartner = tableUpdatePartner.Set("Email", &p.Email)
 
-		case &p.phone != nil:
-			tableUpdatePartner = tableUpdatePartner.Set("Phone",&p.Phone)
+	case &p.Phone != nil:
+		tableUpdatePartner = tableUpdatePartner.Set("Phone", &p.Phone)
 
-		case &p.password != nil:
-			tableUpdatePartner = tableUpdatePartner.Set("Password",&p.Password)
+	case &p.Password != nil:
+		tableUpdatePartner = tableUpdatePartner.Set("Password", &p.Password)
 
-		case &p.token != nil:
-			tableUpdatePartner = tableUpdatePartner.Set("Token", &p.Token)
+	case &p.Token != nil:
+		tableUpdatePartner = tableUpdatePartner.Set("Token", &p.Token)
 	}
-	
-	sql,args, err := tableUpdatePartner.ToSql()
+
+	sql, args, err := tableUpdatePartner.ToSql()
 	db.Exec(sql)
-	return err 
+	return err
 }
 
-func (p *Partner) DeletePartner(db *sql.DB) error {
-	tableDeletePartner := sq.Update("Partner").Set("Delete_at")
+func (c *Callback) createCallback(db *sql.DB) error {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	tableCreationCallback := psql.Insert("Callback").Columns("User_id", "ID", "URL", "HTTP_method", "Created_at")
+
+	values := tableCreationCallback.Values(c.UserID, c.ID, c.URL, c.HTTPMethod, time.Now)
+	sql, args, err := values.ToSql()
+	_, error := db.Exec(sql)
+	return error
 }
 
-func (c *Callback) CreateCallback(db *sql.DB) error {
+func (c *Callback) updateCallback(db *sql.DB) error {
+	tableUpdateCallback := sq.Update("Callback").Where(sq.Eq{"Id": &c.ID})
+	switch {
+	case &c.URL != nil:
+		tableUpdateCallback = tableUpdateCallback.Set("URL", &c.URL)
 
-	return error.New("not implemented yet")
+	case &c.HTTPMethod != nil:
+		tableUpdateCallback = tableUpdateCallback.Set("HTTP_method", &c.HTTPMethod)
+	}
+
+	sql, args, err := tableUpdateCallback.ToSql()
+	db.Exec(sql)
+	return err
 }
 
-func (c *Callback) UpdateCallback(db *sql.DB) error {
-
+func (c *Callback) DeleteCallback(db *sql.DB) error {
+	tableDeleteCallback := psql.Update("Callback").Where("ID= ?", &c.ID).Set("Delete_at= ?", time.Now).ToSql()
+	_, err := db.Exec(tableDeleteCallback)
+	return err
 }
 
-func (p *Partner) Partnercomprobation(db *sql.DB) error {
-
-}
-
-func (c *Callback) Partnercomprobation(db *sql.DB) error {
-
+func (c *Callback) GetCallbackfromID(db *sql.DB) error {
+	fromID := tableGetCallback.Where("ID = ?", c.ID).Tosql()
+	return db.QueryRow(fromID).Scan(&c.ID, &c.UserID, &c.URL, &c.HTTPMethod, &c.CreatedAt, &c.DeleteAt)
 }
