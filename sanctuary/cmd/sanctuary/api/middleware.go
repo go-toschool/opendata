@@ -14,7 +14,7 @@ import (
 
 const (
 	tokenTypePrefix = "Bearer "
-	tokenHeaderKey  = "X-Fin-Client-Token"
+	tokenHeaderKey  = "X-FIN-CLIENT-TOKEN"
 )
 
 // Middleware provides a middleware to authenticate an incoming request.

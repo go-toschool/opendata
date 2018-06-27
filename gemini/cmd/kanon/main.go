@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	host = flag.String("host", "", "Service host (Overwriten if KANON_SERVICE_HOST env var is set)")
+	host = flag.String("host", "kanon", "Service host (Overwriten if KANON_SERVICE_HOST env var is set)")
 	port = flag.Int("port", 4001, "Service port (Overwriten if KANON_SERVICE_PORT env var is set)")
 
 	aiolosHost = flag.String("aiolos-host", "aiolos", "Service host (Overwriten if AIOLOS_SERVICE_HOST env var is set)")
@@ -28,6 +28,8 @@ var (
 	kanonKey  = flag.String("kanon-key", "", "Kanon key (Overwriten if KANON_KEY env var is set)")
 
 	brickwallToken = flag.String("brickwall-token", "", "Token to access brickwall service.")
+
+	withTLS = flag.Bool("with-tls", false, "service with TLS")
 )
 
 func main() {
@@ -48,22 +50,29 @@ func main() {
 		SagittariusClient: sc,
 	}
 
-	creds, err := credentials.NewServerTLSFromFile(*kanonCert, *kanonKey)
-	if err != nil {
-		log.Fatalf("could not load TLS keys: %s", err)
+	var srv *grpc.Server
+	if *withTLS {
+		creds, err := credentials.NewServerTLSFromFile(*kanonCert, *kanonKey)
+		if err != nil {
+			log.Fatalf("could not load TLS keys: %s", err)
+		}
+		opts := []grpc.ServerOption{grpc.Creds(creds)}
+		srv = grpc.NewServer(opts...)
+	} else {
+		srv = grpc.NewServer()
 	}
-	opts := []grpc.ServerOption{grpc.Creds(creds)}
 
-	srv := grpc.NewServer(opts...)
 	kanon.RegisterServiceServer(srv, ks)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", *host, *port))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		log.Fatalf("Failed to listen: %v", err)
 	}
-	log.Println("starting kanon service...")
-	log.Println(fmt.Sprintf("listening on: %s:%d", *host, *port))
-	srv.Serve(lis)
+	log.Println("Starting kanon service...")
+	log.Println(fmt.Sprintf("Listening on: %d", *port))
+	if err := srv.Serve(lis); err != nil {
+		log.Fatalf("Failed to serve: %v", err)
+	}
 }
 
 // KanonService implements kanon interface of gemini package
@@ -74,6 +83,11 @@ type KanonService struct {
 
 // GetTransactions ...
 func (ks *KanonService) GetTransactions(ctx context.Context, r *kanon.Request) (*kanon.Response, error) {
+	log.Println("Calling GetTransactions...")
+
+	log.Printf("Account ID: %s\n", r.AccountId)
+	log.Printf("Reference ID: %s", r.ReferenceId)
+	log.Printf("User ID: %s\n", r.UserId)
 	// path := fmt.Sprintf("/cards/%s/transactions", r.ReferenceId)
 	// resp, err := ks.BrickwallClient.Get(path)
 	// if err != nil {

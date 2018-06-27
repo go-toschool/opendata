@@ -8,7 +8,6 @@ import (
 	"github.com/Finciero/opendata/gemini/kanon"
 	"github.com/Finciero/opendata/gemini/saga"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 )
 
 type Config struct {
@@ -19,13 +18,14 @@ type Config struct {
 
 func NewCastor(c *Config) castor.ServiceClient {
 	// Create the client TLS credentials
-	creds, err := credentials.NewClientTLSFromFile(c.Cert, "")
-	if err != nil {
-		log.Fatalf("could not load tls cert: %s", err)
-	}
+	// creds, err := credentials.NewClientTLSFromFile(c.Cert, "")
+	// if err != nil {
+	// 	log.Fatalf("could not load tls cert: %s", err)
+	// }
 
 	IP := fmt.Sprintf("%s:%d", c.Host, c.Port)
-	conn, err := grpc.Dial(IP, grpc.WithTransportCredentials(creds))
+	fmt.Printf("Castor IP: %s\n", IP)
+	conn, err := grpc.Dial(IP, grpc.WithInsecure()) // grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}
@@ -35,13 +35,14 @@ func NewCastor(c *Config) castor.ServiceClient {
 
 func NewKanon(c *Config) kanon.ServiceClient {
 	// Create the client TLS credentials
-	creds, err := credentials.NewClientTLSFromFile(c.Cert, "")
-	if err != nil {
-		log.Fatalf("could not load tls cert: %s", err)
-	}
+	// creds, err := credentials.NewClientTLSFromFile(c.Cert, "")
+	// if err != nil {
+	// 	log.Fatalf("could not load tls cert: %s", err)
+	// }
 
 	IP := fmt.Sprintf("%s:%d", c.Host, c.Port)
-	conn, err := grpc.Dial(IP, grpc.WithTransportCredentials(creds))
+	fmt.Printf("Kanon IP: %s\n", IP)
+	conn, err := grpc.Dial(IP, grpc.WithInsecure()) // grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}
@@ -51,13 +52,14 @@ func NewKanon(c *Config) kanon.ServiceClient {
 
 func NewSaga(c *Config) saga.ServiceClient {
 	// Create the client TLS credentials
-	creds, err := credentials.NewClientTLSFromFile(c.Cert, "")
-	if err != nil {
-		log.Fatalf("could not load tls cert: %s", err)
-	}
+	// creds, err := credentials.NewClientTLSFromFile(c.Cert, "")
+	// if err != nil {
+	// 	log.Fatalf("could not load tls cert: %s", err)
+	// }
 
 	IP := fmt.Sprintf("%s:%d", c.Host, c.Port)
-	conn, err := grpc.Dial(IP, grpc.WithTransportCredentials(creds))
+	fmt.Printf("Saga IP: %s\n", IP)
+	conn, err := grpc.Dial(IP, grpc.WithInsecure()) // grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}

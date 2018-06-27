@@ -1,15 +1,18 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: extraction
+  name: extraction-svc
+  labels:
+    app: extraction
+    tier: frontend
 spec:
   selector:
     app: extraction
     tier: frontend
   ports:
   - name: extraction
+    port: 8000
     protocol: TCP
-    port: 4000
     targetPort: castor-grpc
   type: LoadBalancer
 ---
@@ -23,20 +26,20 @@ spec:
     metadata:
       labels:
         app: extraction
-        tier: backend
+        tier: frontend
         release: stable
     spec:
+      restartPolicy: Always
       containers:
       - name: castor
         image: gcr.io/finciero-gold/castor:v0.0.1
-        imagePullPolicy: Never
         ports:
         - name: castor-grpc
           containerPort: 4000
         resources:
           limits:
-            cpu: 50m
-            memory: 128Mi
+            cpu: 25m
+            memory: 64Mi
         args:
         - -castor-cert
         - $(CASTOR_CERT)
@@ -74,8 +77,8 @@ spec:
           containerPort: 4001
         resources:
           limits:
-            cpu: 50m
-            memory: 128Mi
+            cpu: 25m
+            memory: 64Mi
         args:
         - -kanon-cert
         - $(KANON_CERT)
@@ -99,8 +102,8 @@ spec:
           containerPort: 4002
         resources:
           limits:
-            cpu: 50m
-            memory: 128Mi
+            cpu: 25m
+            memory: 64Mi
         args:
         - -saga-cert
         - $(SAGA_CERT)

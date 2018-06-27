@@ -4,8 +4,8 @@ RUN apk add --update ca-certificates
 
 MAINTAINER rodrigo <rf@finciero.com>
 
-COPY bin/mu /usr/bin/mu
+COPY bin/aldebaran /usr/bin/aldebaran
 
-EXPOSE 2001
+EXPOSE 2002
 
-ENTRYPOINT ["mu"]
+ENTRYPOINT ["aldebaran"]

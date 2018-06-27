@@ -23,20 +23,37 @@ import (
 	"github.com/Finciero/opendata/taurus/aldebaran"
 	"github.com/Finciero/opendata/taurus/sigiriya"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 var (
 	host = flag.String("host", "", "Service host (Overwriten if ALDEBARAN_SERVICE_HOST env var is set)")
 	port = flag.Int("port", 2002, "Service port (Overwriten if ALDEBARAN_SERVICE_PORT env var is set)")
 
+	aldebaranCert = flag.String("aldebaran-cert", "", "Aldebaran cert (Overwriten if ALDEBARAN_CERT env var is set)")
+	aldebaranKey  = flag.String("aldebaran-key", "", "Aldebaran key (Overwriten if ALDEBARAN_KEY env var is set)")
+
 	sigiriyaToken = flag.String("sigiriya-token", "", "Token to access sigiriya service.")
+
+	withTLS = flag.Bool("with-tls", false, "service with TLS")
 )
 
 func main() {
 	flag.Parse()
-	srv := grpc.NewServer()
 
 	as := &AldebaranService{}
+
+	var srv *grpc.Server
+	if *withTLS {
+		creds, err := credentials.NewServerTLSFromFile(*aldebaranCert, *aldebaranKey)
+		if err != nil {
+			log.Fatalf("could not load TLS keys: %s", err)
+		}
+		opts := []grpc.ServerOption{grpc.Creds(creds)}
+		srv = grpc.NewServer(opts...)
+	} else {
+		srv = grpc.NewServer()
+	}
 
 	aldebaran.RegisterServiceServer(srv, as)
 
@@ -45,10 +62,11 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	log.Println("Starting mu service...")
-	log.Println(fmt.Sprintf("listening on: %s:%d", *host, *port))
-	srv.Serve(lis)
+	log.Println(fmt.Sprintf("listening on: %d", *port))
 
-	fmt.Println("Service Mu de Aries")
+	if err := srv.Serve(lis); err != nil {
+		log.Fatalf("Failed to serve: %v", err)
+	}
 }
 
 // AldebaranService implements aldebaran interface.

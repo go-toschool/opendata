@@ -1,14 +1,10 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
-
-	"github.com/Finciero/opendata/capricornius"
-	"github.com/Finciero/opendata/capricornius/shura"
 
 	"github.com/Finciero/opendata/aries"
 	"github.com/Finciero/opendata/sanctuary/cmd/sanctuary/api"
@@ -21,10 +17,10 @@ var (
 	host = flag.String("host", "", "Service host (Overwriten if SANCTUARY_SERVICE_HOST env var is set)")
 	port = flag.Int("port", 2000, "Service port (Overwriten if SANCTUARY_SERVICE_PORT env var is set)")
 
-	muHost = flag.String("mu-host", "mu", "Service host (Overwriten if MU_SERVICE_HOST env var is set)")
+	muHost = flag.String("mu-host", "localhost", "Service host (Overwriten if MU_SERVICE_HOST env var is set)")
 	muPort = flag.Int("mu-port", 2001, "Service port (Overwriten if MU_SERVICE_PORT env var is set)")
 
-	aldebaranHost = flag.String("aldebaran-host", "aldebaran", "Service host (Overwriten if ALDEBARAN_SERVICE_HOST env var is set)")
+	aldebaranHost = flag.String("aldebaran-host", "localhost", "Service host (Overwriten if ALDEBARAN_SERVICE_HOST env var is set)")
 	aldebaranPort = flag.Int("aldebaran-port", 2002, "Service port (Overwriten if ALDEBARAN_SERVICE_PORT env var is set)")
 
 	shuraHost = flag.String("shura-host", "shura", "Service host (Overwriten if SHURA_SERVICE_HOST env var is set)")
@@ -46,28 +42,34 @@ func main() {
 		Port: *aldebaranPort,
 	})
 
-	// Dial with Shura
-	ss := capricornius.NewShura(&capricornius.Config{
-		Host: *shuraHost,
-		Port: *shuraPort,
-	})
+	// // Dial with Shura
+	// ss := capricornius.NewShura(&capricornius.Config{
+	// 	Host: *shuraHost,
+	// 	Port: *shuraPort,
+	// })
 
-	ctx := context.Background()
-	origins, err := ss.GetOrigins(ctx, &shura.Origin{})
-	if err != nil {
-		panic(err)
+	// ctx := context.Background()
+	// origins, err := ss.GetOrigins(ctx, &shura.Origin{})
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	origins := []string{
+		"localhost:8000",
+		"localhost:8080",
+		"localhost:80",
+		"localhost:4000",
 	}
-
 	authCtx := &auth.Context{
 		AldebaranClient: as,
-		ShuraClient:     ss,
-		AllowedOrigins:  origins.AllowedOrigins,
+		ShuraClient:     nil,
+		AllowedOrigins:  origins, // origins.AllowedOrigins,
 	}
 
 	apiCtx := &api.Context{
-		ShuraClient:    ss,
+		ShuraClient:    nil,
 		MuClient:       ms,
-		AllowedOrigins: origins.AllowedOrigins,
+		AllowedOrigins: origins, // origins.AllowedOrigins,
 	}
 
 	n := negroni.New(

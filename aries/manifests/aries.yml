@@ -16,6 +16,6 @@ spec:
         image: gcr.io/finciero-gold/mu:v0.0.1
         imagePullPolicy: Never
         ports:
-        - containerPort: 2000
+        - containerPort: 2001
           name: mu-grpc
-        command: ["gemini"]
+        command: ["mu"]

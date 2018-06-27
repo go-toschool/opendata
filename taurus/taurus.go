@@ -20,6 +20,6 @@ func NewAldebaran(c *Config) aldebaran.ServiceClient {
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}
-	defer conn.Close()
+
 	return aldebaran.NewServiceClient(conn)
 }

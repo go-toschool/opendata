@@ -1,10 +1,13 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
 	"net"
+
+	"google.golang.org/grpc/metadata"
 
 	context "golang.org/x/net/context"
 
@@ -21,10 +24,10 @@ var (
 	host = flag.String("host", "", "Service host (Overwriten if CASTOR_SERVICE_HOST env var is set)")
 	port = flag.Int("port", 4000, "Service port (Overwriten if CASTOR_SERVICE_PORT env var is set)")
 
-	kanonHost = flag.String("kanon-host", "kanon", "Service host (Overwriten if KANON_SERVICE_HOST env var is set)")
+	kanonHost = flag.String("kanon-host", "localhost", "Service host (Overwriten if KANON_SERVICE_HOST env var is set)")
 	kanonPort = flag.Int("kanon-port", 4001, "Service port (Overwriten if KANON_SERVICE_PORT env var is set)")
 
-	sagaHost = flag.String("saga-host", "saga", "Service host (Overwriten if SAGA_SERVICE_HOST env var is set)")
+	sagaHost = flag.String("saga-host", "localhost", "Service host (Overwriten if SAGA_SERVICE_HOST env var is set)")
 	sagaPort = flag.Int("saga-port", 4002, "Service port (Overwriten if SAGA_SERVICE_PORT env var is set)")
 
 	castorCert = flag.String("castor-cert", "", "Castor cert (Overwriten if CASTOR_CERT env var is set)")
@@ -32,6 +35,8 @@ var (
 
 	kanonCert = flag.String("kanon-cert", "", "Kanon cert (Overwriten if KANON_CERT env var is set)")
 	sagaCert  = flag.String("saga-cert", "", "Saga cert (Overwriten if SAGA_CERT env var is set)")
+
+	withTLS = flag.Bool("with-tls", false, "service with TLS")
 )
 
 func main() {
@@ -42,18 +47,6 @@ func main() {
 		Port: *kanonPort,
 		Cert: *kanonCert,
 	})
-
-	ctx := context.Background()
-	rr, err := ks.GetTransactions(ctx, &kanon.Request{
-		AccountId:   "asdfasdfasdf",
-		ReferenceId: "fasdfasdf",
-		UserId:      "fasdsdf",
-	})
-	if err != nil {
-		log.Fatalf("failed to retrieve response: %v", err)
-	}
-
-	fmt.Println(rr.Message)
 
 	// Dial with Saga
 	ss := gemini.NewSaga(&gemini.Config{
@@ -67,22 +60,29 @@ func main() {
 		SagaClient:  ss,
 	}
 
-	creds, err := credentials.NewServerTLSFromFile(*castorCert, *castorKey)
-	if err != nil {
-		log.Fatalf("could not load TLS keys: %s", err)
+	var srv *grpc.Server
+	if *withTLS {
+		creds, err := credentials.NewServerTLSFromFile(*castorCert, *castorKey)
+		if err != nil {
+			log.Fatalf("could not load TLS keys: %s", err)
+		}
+		opts := []grpc.ServerOption{grpc.Creds(creds)}
+		srv = grpc.NewServer(opts...)
+	} else {
+		srv = grpc.NewServer()
 	}
-	opts := []grpc.ServerOption{grpc.Creds(creds)}
 
-	srv := grpc.NewServer(opts...)
 	castor.RegisterServiceServer(srv, gs)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", *host, *port))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		log.Fatalf("Failed to listen: %v", err)
 	}
-	log.Println("starting Castor service...")
-	log.Println(fmt.Sprintf("listening on: %s:%d", *host, *port))
-	srv.Serve(lis)
+	log.Println("Starting Castor service...")
+	log.Println(fmt.Sprintf("Listening on: %d", *port))
+	if err := srv.Serve(lis); err != nil {
+		log.Fatalf("Failed to serve: %v", err)
+	}
 }
 
 // CastorService implements gemini interface of gemini package
@@ -93,6 +93,16 @@ type CastorService struct {
 
 // Card ...
 func (ss *CastorService) Card(ctx context.Context, r *castor.Request) (*castor.Response, error) {
+	log.Println("Calling Card...")
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, errors.New("Bad metadata format")
+	}
+
+	fmt.Printf("%#v\n", md)
+	fmt.Printf("X-FIN-CLIENT-ID: %s\n", md.Get("X-FIN-CLIENT-ID"))
+
 	go ss.KanonClient.GetTransactions(ctx, &kanon.Request{
 		ReferenceId: r.ReferenceId,
 		UserId:      r.UserId,
@@ -109,9 +119,9 @@ func (ss *CastorService) Card(ctx context.Context, r *castor.Request) (*castor.R
 	return &castor.Response{
 		StatusCode: balance.StatusCode,
 		Balance: &saga.Balance{
-			Email:   balance.Balance.Email,
-			Balance: balance.Balance.Balance,
-			UserId:  balance.Balance.UserId,
+			AccountId: balance.Balance.AccountId,
+			Balance:   balance.Balance.Balance,
+			UserId:    balance.Balance.UserId,
 		},
 	}, nil
 }

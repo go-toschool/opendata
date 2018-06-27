@@ -19,7 +19,7 @@ message Response {
 }
 
 message Balance {
-  string user_id = 1;
-  string email = 2;
+  string account_id = 1;
+  string user_id = 2;
   float balance = 3;
 }

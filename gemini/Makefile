@@ -78,3 +78,15 @@ docker d: dockercastor dockerkanon dockersaga
 
 
 build b: clean proto buildcastor buildkanon buildsaga
+
+castorlog:
+	$(eval POD=$(shell sh -c "kubectl get pods | grep extraction  | grep Running" | awk '{print $$1}'))
+	@kubectl logs -f $(POD) castor
+
+kanonlog:
+	$(eval POD=$(shell sh -c "kubectl get pods | grep extraction  | grep Running" | awk '{print $$1}'))
+	@kubectl logs -f $(POD) kanon
+
+sagalog:
+	$(eval POD=$(shell sh -c "kubectl get pods | grep extraction  | grep Running" | awk '{print $$1}'))
+	@kubectl logs -f $(POD) saga

@@ -21,8 +21,9 @@ var (
 	host = flag.String("host", "", "Service host (Overwriten if MU_SERVICE_HOST env var is set)")
 	port = flag.Int("port", 2001, "Service port (Overwriten if MU_SERVICE_PORT env var is set)")
 
-	geminiHost = flag.String("gemini-host", "gemini", "Service host (Overwriten if GEMINI_SERVICE_HOST env var is set)")
-	geminiPort = flag.Int("gemini-port", 4000, "Service port (Overwriten if GEMINI_SERVICE_PORT env var is set)")
+	castorHost = flag.String("castor-host", "extraction.castor", "Service host (Overwriten if CASTOR_SERVICE_HOST env var is set)")
+	castorPort = flag.Int("castor-port", 4000, "Service port (Overwriten if CASTOR_SERVICE_PORT env var is set)")
+	castorCert = flag.String("castor-cert", "", "Castor cert (Overwriten if CASTOR_CERT env var is set)")
 
 	sigiriyaToken = flag.String("sigiriya-token", "", "Token to access sigiriya service.")
 )
@@ -33,8 +34,9 @@ func main() {
 
 	// Dial with Gemini
 	cs := gemini.NewCastor(&gemini.Config{
-		Host: *geminiHost,
-		Port: *geminiPort,
+		Host: *castorHost,
+		Port: *castorPort,
+		Cert: *castorCert,
 	})
 
 	sc := sigiriya.NewClient(&sigiriya.Config{
@@ -52,11 +54,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	log.Println("Starting mu service...")
-	log.Println(fmt.Sprintf("listening on: %s:%d", *host, *port))
-	srv.Serve(lis)
 
-	fmt.Println("Service Mu de Aries")
+	log.Println("Starting mu service...")
+	log.Println(fmt.Sprintf("listening on: %d", *port))
+	if err := srv.Serve(lis); err != nil {
+		log.Fatalf("Failed to serve: %v", err)
+	}
 }
 
 // MuService ...
