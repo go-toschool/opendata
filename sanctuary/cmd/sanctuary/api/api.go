@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Finciero/opendata/aries/mu"
-	"github.com/Finciero/opendata/sanctuary"
+	"github.com/go-toschool/opendata/aries/mu"
+	"github.com/go-toschool/opendata/sanctuary"
 	"google.golang.org/grpc/metadata"
 )
 

@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"unicode"
 
-	"github.com/Finciero/opendata/capricornius/shura"
-	"github.com/Finciero/opendata/taurus/aldebaran"
+	"github.com/go-toschool/opendata/capricornius/shura"
+	"github.com/go-toschool/opendata/taurus/aldebaran"
 
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"

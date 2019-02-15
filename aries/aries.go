@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Finciero/opendata/aries/mu"
+	"github.com/go-toschool/opendata/aries/mu"
 	"google.golang.org/grpc"
 )
 

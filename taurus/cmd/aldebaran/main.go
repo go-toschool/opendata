@@ -16,12 +16,12 @@ import (
 	"strings"
 	"time"
 
-	sigiriyaPkg "github.com/Finciero/sigiriya"
+	sigiriyaPkg "github.com/go-toschool/sigiriya"
 
 	"golang.org/x/net/context"
 
-	"github.com/Finciero/opendata/taurus/aldebaran"
-	"github.com/Finciero/opendata/taurus/sigiriya"
+	"github.com/go-toschool/opendata/taurus/aldebaran"
+	"github.com/go-toschool/opendata/taurus/sigiriya"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )

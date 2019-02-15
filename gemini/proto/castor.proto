@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package castor;
-option go_package = "github.com/Finciero/opendata/gemini/castor";
+option go_package = "github.com/go-toschool/opendata/gemini/castor";
 
 import "saga.proto";
 

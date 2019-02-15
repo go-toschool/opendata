@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Finciero/opendata/gemini"
-	"github.com/Finciero/opendata/gemini/castor"
+	"github.com/go-toschool/opendata/gemini"
+	"github.com/go-toschool/opendata/gemini/castor"
 	"google.golang.org/grpc/metadata"
 )
 

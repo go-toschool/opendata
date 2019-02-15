@@ -9,7 +9,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/Finciero/opendata/sagittarius/aiolos"
+	"github.com/go-toschool/opendata/sagittarius/aiolos"
 )
 
 func main() {

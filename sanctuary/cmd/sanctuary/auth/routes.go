@@ -3,7 +3,7 @@ package auth
 import (
 	"net/http"
 
-	router "github.com/Finciero/httprouter"
+	router "github.com/go-toschool/httprouter"
 	"github.com/rs/cors"
 	"github.com/urfave/negroni"
 )

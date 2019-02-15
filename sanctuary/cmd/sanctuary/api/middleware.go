@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Finciero/opendata/capricornius/shura"
+	"github.com/go-toschool/opendata/capricornius/shura"
 	"google.golang.org/grpc/metadata"
 )
 

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Finciero/opendata/taurus/aldebaran"
+	"github.com/go-toschool/opendata/taurus/aldebaran"
 	"google.golang.org/grpc/metadata"
 )
 

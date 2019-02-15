@@ -12,7 +12,7 @@ Saga and Kannon, connect with our provider framework `Brickwall` in order to ret
 # Kanon
 
 <img src="kanon.png" alt="Kanon" align="left" width="160" />
-Kanon send to Saggitarius, the card movements of a user to post on the register callback. For more details see [Saggitarius](https://github.com/Finciero/opendata/saggitarius). This action is asyncronous due to the long time that takes retrieving transactions.
+Kanon send to Saggitarius, the card movements of a user to post on the register callback. For more details see [Saggitarius](https://github.com/go-toschool/opendata/saggitarius). This action is asyncronous due to the long time that takes retrieving transactions.
 
 ---
 

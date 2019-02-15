@@ -56,7 +56,7 @@ func NewClient(c *Config) *Client {
 func (c *Client) do(req *http.Request) ([]byte, error) {
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
-	req.Header.Set("X-Finciero-User-Token", fmt.Sprintf("Bearer %s", c.userToken))
+	req.Header.Set("X-go-toschool-User-Token", fmt.Sprintf("Bearer %s", c.userToken))
 
 	resp, err := c.client.Do(req)
 	if err != nil {

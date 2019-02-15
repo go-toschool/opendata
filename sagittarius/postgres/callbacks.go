@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"github.com/Finciero/opendata/sagittarius"
+	"github.com/go-toschool/opendata/sagittarius"
 )
 
 // SagittariusService implements aiolos.Sagittarius interface with postgres as DB.

@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package kanon;
-option go_package = "github.com/Finciero/opendata/gemini/kanon";
+option go_package = "github.com/go-toschool/opendata/gemini/kanon";
 
 service Service {
   rpc GetTransactions (Request) returns (Response);

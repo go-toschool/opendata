@@ -6,10 +6,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Finciero/opendata/aries"
-	"github.com/Finciero/opendata/sanctuary/cmd/sanctuary/api"
-	"github.com/Finciero/opendata/sanctuary/cmd/sanctuary/auth"
-	"github.com/Finciero/opendata/taurus"
+	"github.com/go-toschool/opendata/aries"
+	"github.com/go-toschool/opendata/sanctuary/cmd/sanctuary/api"
+	"github.com/go-toschool/opendata/sanctuary/cmd/sanctuary/auth"
+	"github.com/go-toschool/opendata/taurus"
 	"github.com/urfave/negroni"
 )
 

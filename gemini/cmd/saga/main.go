@@ -12,8 +12,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
-	"github.com/Finciero/opendata/gemini/brickwall"
-	"github.com/Finciero/opendata/gemini/saga"
+	"github.com/go-toschool/opendata/gemini/brickwall"
+	"github.com/go-toschool/opendata/gemini/saga"
 )
 
 var (

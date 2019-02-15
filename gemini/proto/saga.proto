@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package saga;
-option go_package = "github.com/Finciero/opendata/gemini/saga";
+option go_package = "github.com/go-toschool/opendata/gemini/saga";
 
 service Service {
   rpc GetBalance (Request) returns (Response);

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Finciero/opendata/capricornius/shura"
+	"github.com/go-toschool/opendata/capricornius/shura"
 	"google.golang.org/grpc"
 )
 

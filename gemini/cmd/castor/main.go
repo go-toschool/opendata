@@ -14,10 +14,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
-	"github.com/Finciero/opendata/gemini"
-	"github.com/Finciero/opendata/gemini/castor"
-	"github.com/Finciero/opendata/gemini/kanon"
-	"github.com/Finciero/opendata/gemini/saga"
+	"github.com/go-toschool/opendata/gemini"
+	"github.com/go-toschool/opendata/gemini/castor"
+	"github.com/go-toschool/opendata/gemini/kanon"
+	"github.com/go-toschool/opendata/gemini/saga"
 )
 
 var (

@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package aiolos;
-option go_package = "github.com/Finciero/opendata/sagittarius/aiolos";
+option go_package = "github.com/go-toschool/opendata/sagittarius/aiolos";
 
 service Service {
   rpc Create (Callback) returns (Response);

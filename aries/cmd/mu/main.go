@@ -9,11 +9,11 @@ import (
 	"log"
 	"net"
 
-	"github.com/Finciero/opendata/gemini"
-	"github.com/Finciero/opendata/gemini/castor"
+	"github.com/go-toschool/opendata/gemini"
+	"github.com/go-toschool/opendata/gemini/castor"
 
-	"github.com/Finciero/opendata/aries/mu"
-	"github.com/Finciero/opendata/aries/sigiriya"
+	"github.com/go-toschool/opendata/aries/mu"
+	"github.com/go-toschool/opendata/aries/sigiriya"
 	"google.golang.org/grpc"
 )
 

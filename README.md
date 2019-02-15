@@ -1,6 +1,6 @@
 # OpenData
 
-OpenData is the first Open API in latin america, that allow to our partnerships get Finciero's Data.
+OpenData is the first Open API in latin america, that allow to our partnerships get go-toschool's Data.
 
 <img align="center" src="arch.png">
 

@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package mu;
-option go_package = "github.com/Finciero/opendata/aries/mu";
+option go_package = "github.com/go-toschool/opendata/aries/mu";
 
 service Service {
   rpc Extract (Request) returns (Response);

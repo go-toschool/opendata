@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package shura;
-option go_package = "github.com/Finciero/opendata/capricornius/shura";
+option go_package = "github.com/go-toschool/opendata/capricornius/shura";
 
 service Service {
   rpc Create (Partner) returns (Response);

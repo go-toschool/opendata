@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Finciero/opendata/sagittarius/aiolos"
+	"github.com/go-toschool/opendata/sagittarius/aiolos"
 	"google.golang.org/grpc"
 )
 

@@ -10,7 +10,7 @@ import (
 
 	"google.golang.org/grpc/metadata"
 
-	"github.com/Finciero/opendata/capricornius/shura"
+	"github.com/go-toschool/opendata/capricornius/shura"
 )
 
 const (

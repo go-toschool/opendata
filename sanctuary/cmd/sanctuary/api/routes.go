@@ -6,7 +6,7 @@ import (
 	"github.com/rs/cors"
 	"github.com/urfave/negroni"
 
-	router "github.com/Finciero/httprouter"
+	router "github.com/go-toschool/httprouter"
 )
 
 // Routes ...

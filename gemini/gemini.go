@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Finciero/opendata/gemini/castor"
-	"github.com/Finciero/opendata/gemini/kanon"
-	"github.com/Finciero/opendata/gemini/saga"
+	"github.com/go-toschool/opendata/gemini/castor"
+	"github.com/go-toschool/opendata/gemini/kanon"
+	"github.com/go-toschool/opendata/gemini/saga"
 	"google.golang.org/grpc"
 )
 

@@ -8,13 +8,13 @@ import (
 
 	"golang.org/x/net/context"
 
-	"github.com/Finciero/opendata/sagittarius"
-	"github.com/Finciero/opendata/sagittarius/aiolos"
+	"github.com/go-toschool/opendata/sagittarius"
+	"github.com/go-toschool/opendata/sagittarius/aiolos"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
-	"github.com/Finciero/opendata/gemini/brickwall"
-	"github.com/Finciero/opendata/gemini/kanon"
+	"github.com/go-toschool/opendata/gemini/brickwall"
+	"github.com/go-toschool/opendata/gemini/kanon"
 )
 
 var (
