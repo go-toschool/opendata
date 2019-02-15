@@ -1,6 +1,7 @@
-package sigiriya
+package gotoschool
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -9,9 +10,9 @@ import (
 )
 
 var baseURL = url.URL{
-	Scheme: "https",
-	Host:   "api.finciero.com",
-	Path:   "services",
+	Scheme: "http",
+	Host:   "api.gotoschool.com",
+	Path:   "",
 }
 
 type clientErr struct {
@@ -24,12 +25,12 @@ func newError(msg string, err error) *clientErr {
 }
 
 func (ce *clientErr) Error() string {
-	res := "sigiriya: " + ce.msg
+	res := "gotoschool: " + ce.msg
 	return res
 }
 
-// Client represents a sigiriya client, this client
-// let us post information to sigiriya service.
+// Client represents a gotoschool client, this client
+// let us post information to gotoschool service.
 type Client struct {
 	client    http.Client
 	apiURL    string
@@ -38,13 +39,13 @@ type Client struct {
 }
 
 // Config represent basic information to setup a new
-// connection to sigiriya
+// connection to gotoschool
 type Config struct {
 	Token string
 }
 
-// NewClient returns a new sigiriya.Client that allow to connect
-// to sigiriya service.
+// NewClient returns a new gotoschool.Client that allow to connect
+// to gotoschool service.
 func NewClient(c *Config) *Client {
 	return &Client{
 		client: http.Client{},
@@ -54,9 +55,9 @@ func NewClient(c *Config) *Client {
 }
 
 func (c *Client) do(req *http.Request) ([]byte, error) {
-	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Accept", "application/graphql")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
-	req.Header.Set("X-go-toschool-User-Token", fmt.Sprintf("Bearer %s", c.userToken))
+	req.Header.Set("X-gotoschool-User-Token", fmt.Sprintf("Bearer %s", c.userToken))
 
 	resp, err := c.client.Do(req)
 	if err != nil {
@@ -82,7 +83,25 @@ func (c *Client) Get(path string) ([]byte, error) {
 	if err != nil {
 		return nil, newError("failed to create request", err)
 	}
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "application/graphql")
+
+	payloadBytes, err := c.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return payloadBytes, nil
+}
+
+// Post make a POST request.
+func (c *Client) Post(path, body string) ([]byte, error) {
+	b := bytes.NewBufferString(body)
+
+	req, err := http.NewRequest("POST", c.url(path), b)
+	if err != nil {
+		return nil, newError("failed to create request", err)
+	}
+	req.Header.Set("Content-Type", "application/graphql")
 
 	payloadBytes, err := c.do(req)
 	if err != nil {

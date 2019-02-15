@@ -8,17 +8,17 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/gorilla/mux"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
 const (
-	host		=
-	port		=
-	user		=
-	password	=
-	dbname		=
+	host     = ""
+	port     = ""
+	user     = ""
+	password = ""
+	dbname   = ""
 )
 
 type App struct {
@@ -42,17 +42,16 @@ func (a *App) Run(addr string) {
 	log.Fatal(http.ListenAndServe(":8000", a.Router))
 }
 
-
 func (a *App) getPartner(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	id,err := strconv.Atoi(vars["id"])
+	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid Partner ID")
 		return
 	}
 
-	p:= partner{ID : id}
+	p := partner{ID: id}
 	if err := p.getPartner(a.DB); err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -65,13 +64,13 @@ func (a *App) getPartner(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithJSON(w, http.StatusOK, p)
-}	
-
-func respondWithError(w http.ResponseWriter, code int, message string){
-	respondWithJSON(w,code, map[string]string{"error":message})
 }
 
-func respondWithJSON(w http.ResponseWriter,code int, payload interface{} ){
+func respondWithError(w http.ResponseWriter, code int, message string) {
+	respondWithJSON(w, code, map[string]string{"error": message})
+}
+
+func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	response, _ := json.Marshal(payload)
 
 	w.Header().Set("Content-Type", "application/json")
@@ -79,7 +78,7 @@ func respondWithJSON(w http.ResponseWriter,code int, payload interface{} ){
 	w.Write(responses)
 }
 
-func main () {
+func main() {
 
 	router := mux.NewRouter()
 
@@ -92,7 +91,6 @@ func main () {
 	router.HandleFunc("/partner/{id}", UpdatePartner).Methods("POST")
 	router.HandleFunc("/partner/{id}", DeletePartner).Methods("POST")
 
-	log.Fatal(http.ListenAndServe(":5000",router))
-
+	log.Fatal(http.ListenAndServe(":5000", router))
 
 }

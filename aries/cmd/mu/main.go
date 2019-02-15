@@ -11,9 +11,9 @@ import (
 
 	"github.com/go-toschool/opendata/gemini"
 	"github.com/go-toschool/opendata/gemini/castor"
+	"github.com/go-toschool/opendata/gotoschool"
 
 	"github.com/go-toschool/opendata/aries/mu"
-	"github.com/go-toschool/opendata/aries/sigiriya"
 	"google.golang.org/grpc"
 )
 
@@ -25,7 +25,7 @@ var (
 	castorPort = flag.Int("castor-port", 4000, "Service port (Overwriten if CASTOR_SERVICE_PORT env var is set)")
 	castorCert = flag.String("castor-cert", "", "Castor cert (Overwriten if CASTOR_CERT env var is set)")
 
-	sigiriyaToken = flag.String("sigiriya-token", "", "Token to access sigiriya service.")
+	gotoschoolToken = flag.String("gotoschool-token", "", "Token to access gotoschool service.")
 )
 
 func main() {
@@ -39,13 +39,13 @@ func main() {
 		Cert: *castorCert,
 	})
 
-	sc := sigiriya.NewClient(&sigiriya.Config{
-		Token: *sigiriyaToken,
+	sc := gotoschool.NewClient(&gotoschool.Config{
+		Token: *gotoschoolToken,
 	})
 
 	ms := &MuService{
-		SigiriyaClient: sc,
-		CastorClient:   cs,
+		GotoschoolClient: sc,
+		CastorClient:     cs,
 	}
 
 	mu.RegisterServiceServer(srv, ms)
@@ -64,11 +64,11 @@ func main() {
 
 // MuService ...
 type MuService struct {
-	SigiriyaClient *sigiriya.Client
-	CastorClient   castor.ServiceClient
+	GotoschoolClient *gotoschool.Client
+	CastorClient     castor.ServiceClient
 }
 
-type sigiriyaResponse struct {
+type gotoschoolResponse struct {
 	ID              string `json:"id,omitempty"`
 	VanityNumber    string `json:"vanity_number,omitempty"`
 	ReferenceID     string `json:"reference_id,omitempty"`
@@ -77,13 +77,13 @@ type sigiriyaResponse struct {
 
 // Extract ...
 func (ms *MuService) Extract(ctx context.Context, r *mu.Request) (*mu.Response, error) {
-	ms.SigiriyaClient.SetUserToken(r.UserToken)
-	resp, err := ms.SigiriyaClient.Get("/auth")
+	ms.gotoschoolClient.SetUserToken(r.UserToken)
+	resp, err := ms.gotoschoolClient.Get("/auth")
 	if err != nil {
 		return nil, err
 	}
 
-	var srr *sigiriyaResponse
+	var srr *gotoschoolResponse
 	if err := json.Unmarshal(resp, srr); err != nil {
 		return nil, err
 	}

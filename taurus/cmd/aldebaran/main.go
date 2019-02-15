@@ -16,12 +16,12 @@ import (
 	"strings"
 	"time"
 
-	sigiriyaPkg "github.com/go-toschool/sigiriya"
+	gotoschoolPkg "github.com/go-toschool/gotoschool"
 
 	"golang.org/x/net/context"
 
 	"github.com/go-toschool/opendata/taurus/aldebaran"
-	"github.com/go-toschool/opendata/taurus/sigiriya"
+	"github.com/go-toschool/opendata/taurus/gotoschool"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -33,7 +33,7 @@ var (
 	aldebaranCert = flag.String("aldebaran-cert", "", "Aldebaran cert (Overwriten if ALDEBARAN_CERT env var is set)")
 	aldebaranKey  = flag.String("aldebaran-key", "", "Aldebaran key (Overwriten if ALDEBARAN_KEY env var is set)")
 
-	sigiriyaToken = flag.String("sigiriya-token", "", "Token to access sigiriya service.")
+	gotoschoolToken = flag.String("gotoschool-token", "", "Token to access gotoschool service.")
 
 	withTLS = flag.Bool("with-tls", false, "service with TLS")
 )
@@ -71,7 +71,7 @@ func main() {
 
 // AldebaranService implements aldebaran interface.
 type AldebaranService struct {
-	SigiriyaClient *sigiriya.Client
+	GotoschoolClient *gotoschool.Client
 }
 
 // CreateToken create a new Auth token
@@ -83,7 +83,7 @@ func (as *AldebaranService) CreateToken(ctx context.Context, r *aldebaran.Create
 		return nil, err
 	}
 
-	data := &sigiriyaPkg.AuthApplication{
+	data := &gotoschoolPkg.AuthApplication{
 		Email:     r.Email,
 		Client:    r.ClientToken,
 		Token:     token,
@@ -94,7 +94,7 @@ func (as *AldebaranService) CreateToken(ctx context.Context, r *aldebaran.Create
 		return nil, err
 	}
 
-	resp, err := as.SigiriyaClient.Post("/auth", bytes.NewReader(b))
+	resp, err := as.GotoschoolClient.Post("/auth", bytes.NewReader(b))
 	if err != nil {
 		return nil, err
 	}
@@ -115,14 +115,14 @@ func (as *AldebaranService) CheckToken(ctx context.Context, r *aldebaran.Check) 
 		return nil, err
 	}
 
-	resp, err := as.SigiriyaClient.Get(fmt.Sprintf("/auth?token=%s", r.UserToken))
+	resp, err := as.GotoschoolClient.Get(fmt.Sprintf("/auth?token=%s", r.UserToken))
 	if err != nil {
 		return nil, err
 	}
 
 	payload := new(struct {
-		StatusCode int32                       `json:"status_code"`
-		Data       sigiriyaPkg.AuthApplication `json:"data"`
+		StatusCode int32                         `json:"status_code"`
+		Data       gotoschoolPkg.AuthApplication `json:"data"`
 	})
 	if err := json.Unmarshal(resp, &payload); err != nil {
 		return nil, err

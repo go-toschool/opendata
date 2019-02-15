@@ -29,8 +29,8 @@ func (ce *clientErr) Error() string {
 	return fmt.Sprintf("%s: %s", service, ce.msg)
 }
 
-// Client represents a sigiriya client, this client
-// let us post information to sigiriya service.
+// Client represents a brickwall client, this client
+// let us post information to brickwall service.
 type Client struct {
 	client http.Client
 	apiURL string
@@ -38,13 +38,13 @@ type Client struct {
 }
 
 // Config represent basic information to setup a new
-// connection to sigiriya
+// connection to brickwall
 type Config struct {
 	Token string
 }
 
-// NewClient returns a new sigiriya.Client that allow to connect
-// to sigiriya service.
+// NewClient returns a new brickwall.Client that allow to connect
+// to brickwall service.
 func NewClient(c *Config) *Client {
 	return &Client{
 		client: http.Client{},

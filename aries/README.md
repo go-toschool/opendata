@@ -4,7 +4,7 @@
 
 Este servicio está encargado de verificar la valides de los token enviamos por un proveedor, además de comprobar las credenciales de un usuario, específicamente, el token de autenticación creado por [Taurus](https://github.com/go-toschool/opendata/taurus).
 
-Esta validación se hace por medio de un request HTTP hacia nuestro servidor principal Sigiriya, quien retorna la valides de este token.
+Esta validación se hace por medio de un request HTTP hacia nuestro servidor principal Gotoschool, quien retorna la valides de este token.
 
 Además, validamos el token de acceso de dicho partner consultando al Servicio de [Capricornius](https://github.com/go-toschool/opendata/capricornius).
 
